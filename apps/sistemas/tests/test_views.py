@@ -5,7 +5,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from apps.sistemas import cores
-from apps.sistemas.exemplos_rapidos import parametros
+from apps.sistemas.exemplos_rapidos import exemplo_3x3_linha3, parametros
 
 
 class ResolverViewTests(TestCase):
@@ -34,9 +34,37 @@ class ResolverViewTests(TestCase):
         html = self.client.get(self.url).content.decode()
         self.assertLess(html.index('for="entrada-equacoes"'), html.index('for="entrada-matriz"'))
 
+    def test_exemplo_3x3_linha3_e_atributo_data_na_grade(self):
+        esperado = {'a31': '1', 'a32': '-4', 'a33': '1', 'k3': '-4'}
+        self.assertEqual(exemplo_3x3_linha3(), esperado)
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'data-exemplo-l3=')
+        self.assertContains(r, '&quot;a31&quot;: &quot;1&quot;')
+        self.assertContains(r, '&quot;k3&quot;: &quot;-4&quot;')
+
+    def test_botao_resolver_com_id_e_rotulo(self):
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'id="btn-resolver"')
+        self.assertContains(r, 'class="rotulo-resolver"')
+
+    def test_elementos_de_travamento_e_limpeza_de_resolucao(self):
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'id="status-travado"')
+        self.assertContains(r, 'id="btn-parar"')
+        self.assertContains(r, 'id="cena-placeholder"')
+        self.assertContains(r, 'id="conta-placeholder"')
+        self.assertContains(r, 'abas-entrada')
+
     def test_resolucao_por_metodo_recolhida(self):
         r = self.client.get(self.url, parametros([[3, -2, 1], [-1, 3, -2], [1, -4, 1]], [-2, -3, -4]))
         html = r.content.decode()
+        self.assertContains(r, 'id="btn-parar"')
+        self.assertContains(r, 'id="btn-cena-parar"')
+        self.assertContains(r, 'class="metodo-passo-corpo"')
+        self.assertContains(r, 'role="button"')
         for nome in ('Regra de Cramer', 'Escalonamento', 'Resultado'):
             self.assertIn(f'<summary>{nome}', html)
         self.assertNotIn('<details class="metodo" data-secao="cramer" open', html)
@@ -51,6 +79,14 @@ class ResolverViewTests(TestCase):
         self.assertContains(r, 'S = {(\u22121, 2, 5)}')
         self.assertContains(r, 'name="a33" value="1"')
         self.assertContains(r, 'class="grade-coeficientes ordem-3"')
+
+    def test_link_por_equacoes_sem_ordem(self):
+        dados = {'entrada': 'equacoes', 'metodo': 'cramer', 'equacoes': '2x+3y=4\n-x+2y=5'}
+        r = self.client.get(self.url, dados)
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'S = {(\u22121, 2)}')
+        self.assertEqual(self.client.get(reverse('sistemas:trace'), dados).status_code, 200)
+        self.assertEqual(self.client.get(reverse('sistemas:solucao_txt'), dados).status_code, 200)
 
     def test_equacoes_invalidas(self):
         r = self.client.get(self.url, {'entrada': 'equacoes', 'n': '2', 'metodo': 'ambos',

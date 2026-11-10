@@ -40,15 +40,24 @@
   {# 1º quadrante: o sistema #}
   <div class="col-xl-3 col-lg-4 quadrante" id="q-entrada">
     <form method="get" action="{% url 'sistemas:resolver' %}" class="card p-3 form-sistema" id="form-sistema" novalidate>
-      <div class="btn-group w-100 mb-3" role="group" aria-label="Como informar o sistema">
+      <div class="btn-group w-100 mb-2 abas-entrada" role="group" aria-label="Como informar o sistema">
         <input type="radio" class="btn-check" name="entrada" id="entrada-equacoes" value="equacoes" autocomplete="off"{% if entrada == 'equacoes' %} checked{% endif %}>
         <label class="btn btn-outline-secondary" for="entrada-equacoes"><i class="bi bi-pencil" aria-hidden="true"></i> Equações</label>
         <input type="radio" class="btn-check" name="entrada" id="entrada-matriz" value="matriz" autocomplete="off"{% if entrada == 'matriz' %} checked{% endif %}>
         <label class="btn btn-outline-secondary" for="entrada-matriz"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Matriz</label>
       </div>
 
+      <div class="d-flex gap-2 w-100 mb-2 acoes-resolver">
+        <button type="submit" class="btn btn-primary flex-grow-1 btn-resolver" id="btn-resolver"><i class="bi bi-play-fill" aria-hidden="true"></i> <span class="rotulo-resolver">Resolver</span></button>
+        <button type="button" class="btn btn-outline-danger btn-parar{% if not trace %} d-none{% endif %}" id="btn-parar" title="Parar processamento e habilitar campos"><i class="bi bi-stop-fill" aria-hidden="true"></i> Parar</button>
+      </div>
+
       {% if form.non_field_errors %}<div class="alert alert-danger py-2" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
       {% if form.metodo.errors %}<p class="erro-campo">Método: {{ form.metodo.errors|join:" " }}</p>{% endif %}
+
+      <div id="status-travado" class="alert alert-secondary py-1 px-2 mb-2 small d-none d-flex align-items-center justify-content-between" role="status">
+        <span><i class="bi bi-lock-fill me-1" aria-hidden="true"></i> Parâmetros fixados para a resolução</span>
+      </div>
 
       <div class="bloco-equacoes">
         <label class="form-label" for="{{ form.equacoes.id_for_label }}">Sistema (uma equação por linha)</label>
@@ -62,7 +71,7 @@
           <label class="form-label" for="{{ form.n.id_for_label }}">{{ form.n.label }}</label>
           {{ form.n }}
         </div>
-        <fieldset class="grade-coeficientes ordem-{{ ordem }}" id="grade">
+        <fieldset class="grade-coeficientes ordem-{{ ordem }}" id="grade"{% if exemplo_l3_json %} data-exemplo-l3="{{ exemplo_l3_json }}"{% endif %}>
           <legend class="form-label">Matriz [A | K]</legend>
           <div class="grade-cab" aria-hidden="true">
             <span></span><span class="col-x-texto">x</span><span class="col-y-texto">y</span><span class="col-z-texto so-3">z</span><span></span><span class="col-k-texto">K</span>
@@ -87,14 +96,18 @@
         </div>
       </div>
 
-      <p class="small texto-suave mt-3 mb-3">Aceita inteiros, decimais (31,5) e frações (3/4). Campo vazio vale 0.</p>
-      <button type="submit" class="btn btn-primary w-100 mt-auto btn-resolver"><i class="bi bi-play-fill" aria-hidden="true"></i> Resolver</button>
+      <p class="small texto-suave mt-3 mb-0">Aceita inteiros, decimais (31,5) e frações (3/4). Campo vazio vale 0.</p>
     </form>
   </div>
 
   {% if trace %}
   {# 2º quadrante: matriz animada, controles fixos no topo #}
   <div class="col-xl-5 col-lg-8 quadrante" id="q-cena">
+    <div class="card p-4 d-none cena-placeholder" id="cena-placeholder">
+      <h2 class="h5 mb-2"><i class="bi bi-info-circle text-primary me-2" aria-hidden="true"></i>Parâmetros em edição</h2>
+      <p class="texto-suave mb-3">A resolução anterior foi limpa para evitar resquícios. Defina os parâmetros no 1º quadrante e clique em <strong>Resolver</strong> para iniciar o passo a passo.</p>
+      {% include "sistemas/_legenda.html" %}
+    </div>
     <section class="card p-3 cena" id="cena" aria-labelledby="cena-titulo" hidden>
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
         <nav class="cena-secoes" id="cena-secoes" aria-label="Seções da resolução"></nav>
@@ -105,6 +118,7 @@
         <button type="button" class="btn btn-outline-secondary" id="btn-inicio" aria-label="Primeiro passo" title="Primeiro passo"><i class="bi bi-skip-start-fill" aria-hidden="true"></i></button>
         <button type="button" class="btn btn-outline-secondary" id="btn-anterior" aria-label="Passo anterior" title="Passo anterior (←)"><i class="bi bi-chevron-left" aria-hidden="true"></i> <span class="d-none d-sm-inline">Anterior</span></button>
         <button type="button" class="btn btn-outline-secondary" id="btn-tocar" aria-label="Reproduzir automaticamente" title="Reproduzir ou pausar (espaço)"><i class="bi bi-play-fill" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-cena-parar" aria-label="Parar processamento" title="Parar processamento e habilitar campos"><i class="bi bi-stop-fill" aria-hidden="true"></i></button>
         <button type="button" class="btn btn-primary" id="btn-proximo" aria-label="Próximo passo" title="Próximo passo (→)"><span class="d-none d-sm-inline">Próximo</span> <i class="bi bi-chevron-right" aria-hidden="true"></i></button>
         <button type="button" class="btn btn-outline-secondary" id="btn-fim" aria-label="Último passo" title="Último passo"><i class="bi bi-skip-end-fill" aria-hidden="true"></i></button>
       </div>
@@ -124,9 +138,12 @@
   {# 3º quadrante: a conta do passo e a resolução completa, por método #}
   <div class="col-xl-4 col-lg-12 quadrante" id="q-conta">
     <section class="card p-3 conta" aria-labelledby="conta-titulo">
-      <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+      <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
         <h2 class="h6 texto-suave mb-0" id="conta-titulo">Conta</h2>
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'sistemas:solucao_txt' %}?{{ query }}" download><i class="bi bi-download" aria-hidden="true"></i> Salvar .txt</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'sistemas:solucao_txt' %}?{{ query }}" download id="btn-salvar-txt"><i class="bi bi-download" aria-hidden="true"></i> Salvar .txt</a>
+      </div>
+      <div class="d-none" id="conta-placeholder">
+        <p class="texto-suave mt-3">Aguardando resolução. O passo a passo e a memória de cálculo aparecerão aqui assim que você clicar em <strong>Resolver</strong>.</p>
       </div>
       <div class="conta-passo" id="conta" hidden>
         <div class="cena-destaque" id="cena-destaque"></div>
@@ -134,15 +151,17 @@
         <ul class="cena-itens" id="cena-itens"></ul>
       </div>
       <div class="resolucao-metodos">
-        <h3 class="h6 mt-2 mb-2">Resolução por método</h3>
+        <h3 class="h6 mt-1 mb-1 resolucao-metodos-titulo">Resolução por método</h3>
         {% for grupo in secoes %}
         <details class="metodo" data-secao="{{ grupo.chave }}">
           <summary>{{ grupo.nome }} <span class="texto-suave small">({{ grupo.passos|length }} passo{{ grupo.passos|length|pluralize }})</span></summary>
           {% for passo in grupo.passos %}
-          <div class="metodo-passo" data-passo="{{ passo.id }}">
+          <div class="metodo-passo" data-passo="{{ passo.id }}" role="button" tabindex="0" title="Clique para ir ao passo {{ passo.id }}">
             <p class="metodo-passo-titulo"><span class="texto-suave">{{ passo.id }}.</span> {{ passo.titulo }}</p>
-            {% if passo.matriz %}<pre class="metodo-matriz">{{ passo.matriz }}</pre>{% endif %}
-            <ul class="metodo-linhas">{% for linha in passo.linhas %}<li>{{ linha }}</li>{% endfor %}</ul>
+            <div class="metodo-passo-corpo">
+              {% if passo.matriz %}<pre class="metodo-matriz">{{ passo.matriz }}</pre>{% endif %}
+              <ul class="metodo-linhas">{% for linha in passo.linhas %}<li>{{ linha }}</li>{% endfor %}</ul>
+            </div>
           </div>
           {% endfor %}
         </details>

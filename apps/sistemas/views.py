@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -69,6 +70,7 @@ def resolver_view(request):
         'entrada': 'equacoes' if form.data.get('entrada') == 'equacoes' else 'matriz',
         'trace': trace,
         'exemplos': exemplos_rapidos.lista(metodo),
+        'exemplo_l3_json': json.dumps(exemplos_rapidos.exemplo_3x3_linha3()),
         'equacoes': trace['passos'][0]['equacoes'] if trace else [],
         'secoes': relatorio.secoes(trace) if trace else [],
         'query': _query(form.data),

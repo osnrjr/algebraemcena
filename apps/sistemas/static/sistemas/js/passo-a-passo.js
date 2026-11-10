@@ -176,11 +176,28 @@
 
   function painel(no) { el.painel.appendChild(no); return no; }
 
+  function destacarLinhaMetodo(indiceLinha) {
+    const bloco = document.querySelector('.metodo-passo.atual');
+    if (!bloco) return;
+    const lis = bloco.querySelectorAll('.metodo-linhas li');
+    lis.forEach((li, idx) => {
+      const eAtiva = idx === indiceLinha;
+      li.classList.toggle('linha-em-execucao', eAtiva);
+      if (eAtiva) {
+        li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  }
+
   /* ---------- desenho por tipo de passo ---------- */
   const desenhar = {
-    forma_matricial(p) {
+    async forma_matricial(p, animar) {
       desenharMatriz(p, p.matriz, p.papeis);
-      p.equacoes.forEach((eq, i) => item('L' + (i + 1) + ':  ' + eq));
+      for (let i = 0; i < p.equacoes.length; i++) {
+        destacarLinhaMetodo(i);
+        item('L' + (i + 1) + ':  ' + p.equacoes[i]);
+        if (animar && !(await depois(350))) return;
+      }
     },
 
     async determinante(p, animar) {
@@ -189,6 +206,7 @@
       const valor = el.destaque.appendChild(criar('span', 'valor-grande', p.rotulo + ' = ?'));
       for (let k = 0; k < p.diagonais.length; k++) {
         const d = p.diagonais[k];
+        destacarLinhaMetodo(k);
         if (animar && !(await depois(650))) return;
         const classe = d.sinal === '+' ? 'em-produto-mais' : 'em-produto-menos';
         d.celulas.forEach(([i, j]) => celulas[i][j].classList.add(classe));
@@ -199,17 +217,27 @@
         if (animar && !(await depois(450))) return;
         d.celulas.forEach(([i, j]) => celulas[i][j].classList.remove(classe));
       }
+      const idxMais = p.diagonais.length;
+      destacarLinhaMetodo(idxMais);
       if (animar && !(await depois(400))) return;
       const mais = p.diagonais.filter((d) => d.sinal === '+').map((d) => comSinal(d.contribuicao));
       const menos = p.diagonais.filter((d) => d.sinal === '-').map((d) => comSinal(d.contribuicao));
       item('Soma (+): ' + mais.join(' ') + ' = ' + fmt(p.soma_mais), 'mais');
+
+      const idxMenos = idxMais + 1;
+      destacarLinhaMetodo(idxMenos);
+      if (animar && !(await depois(400))) return;
       item('Soma (−): ' + menos.join(' ') + ' = ' + fmt(p.soma_menos), 'menos');
+
+      const idxTotal = idxMenos + 1;
+      destacarLinhaMetodo(idxTotal);
       const sinal = String(p.soma_menos).startsWith('-') ? ' − ' : ' + ';
       item(p.rotulo + ' = ' + fmt(p.soma_mais) + sinal + semSinal(p.soma_menos) + ' = ' + fmt(p.valor), 'total');
       valor.textContent = p.rotulo + ' = ' + fmt(p.valor);
     },
 
     async substituir_coluna(p, animar) {
+      destacarLinhaMetodo(0);
       const j = p.coluna;
       el.destaque.appendChild(criar('span', 'notacao', 'C' + (j + 1) + ' → K'));
       if (!animar) {
@@ -226,21 +254,26 @@
       novas.forEach((linha) => linha[j].classList.add('entrando'));
     },
 
-    quocientes(p) {
+    async quocientes(p, animar) {
       desenharMatriz(p, null);
       const lista = painel(criar('ul', 'painel-lista'));
-      p.itens.forEach((it) => {
+      for (let i = 0; i < p.itens.length; i++) {
+        const it = p.itens[i];
+        destacarLinhaMetodo(i);
         lista.appendChild(criar('li', 'conjunto', rotulos[it.variavel] + ' = ' + fmt(it.valor)));
         item(it.texto, 'total');
-      });
+        if (animar && !(await depois(450))) return;
+      }
     },
 
     aviso(p) {
+      destacarLinhaMetodo(0);
       desenharMatriz(p, null);
       painel(criar('div', 'aviso-cena', p.titulo));
     },
 
     async operacao_elementar(p, animar) {
+      destacarLinhaMetodo(0);
       const op = p.operacao;
       const linhas = p.linhas;
       el.destaque.appendChild(criar('span', 'notacao', p.notacao));
@@ -256,20 +289,24 @@
     },
 
     forma_escalonada(p) {
+      destacarLinhaMetodo(0);
       desenharMatriz(p, p.matriz, p.papeis, { linhas: p.linhas, pivos: p.pivos });
     },
 
     forma_reduzida(p) {
+      destacarLinhaMetodo(0);
       desenharMatriz(p, p.matriz, p.papeis, { linhas: p.linhas, pivos: p.pivos });
     },
 
     classificacao(p) {
+      destacarLinhaMetodo(0);
       desenharMatriz(p, null);
       painel(criar('span', 'selo selo-grande selo-' + p.valor, p.valor));
       item('posto(A) = ' + p.posto_A + '   posto([A|K]) = ' + p.posto_AK);
     },
 
     solucao(p) {
+      destacarLinhaMetodo(0);
       desenharMatriz(p, null);
       painel(criar('span', 'conjunto', p.conjunto));
       p.itens.forEach((it) => item(it.texto));
@@ -279,9 +316,10 @@
       desenharMatriz(p, null);
       painel(criar('span', 'conjunto ' + (p.ok ? 'texto-ok' : 'texto-falha'),
         p.ok ? '✓ Todas as equações conferem' : '✗ Alguma equação não confere'));
-      for (const it of p.itens) {
+      for (let i = 0; i < p.itens.length; i++) {
+        destacarLinhaMetodo(i);
         if (animar && !(await depois(500))) return;
-        item(it.texto, it.ok ? 'ok' : 'falha');
+        item(p.itens[i].texto, p.itens[i].ok ? 'ok' : 'falha');
       }
     },
   };
@@ -308,9 +346,24 @@
     el.inicio.disabled = atual === 0;
     el.proximo.disabled = atual === passos.length - 1;
     el.fim.disabled = atual === passos.length - 1;
-    document.querySelectorAll('.metodo-passo').forEach((bloco) => {
-      bloco.classList.toggle('atual', Number(bloco.dataset.passo) === p.id);
+
+    // Colapsa os métodos que não estão em destaque e expande apenas o método atual
+    document.querySelectorAll('.resolucao-metodos details.metodo').forEach((det) => {
+      det.open = (det.dataset.secao === p.secao);
     });
+
+    // Destaca em azul apenas o passo em resolução e colapsa os demais
+    let blocoAtivo = null;
+    document.querySelectorAll('.metodo-passo').forEach((bloco) => {
+      const eAtual = Number(bloco.dataset.passo) === p.id;
+      bloco.classList.toggle('atual', eAtual);
+      if (eAtual) blocoAtivo = bloco;
+    });
+
+    if (blocoAtivo) {
+      blocoAtivo.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
     el.secoes.querySelectorAll('button').forEach((b) => {
       if (b.dataset.secao === p.secao) b.setAttribute('aria-current', 'step');
       else b.removeAttribute('aria-current');
@@ -332,6 +385,7 @@
         : 'Diagonal principal (+) menos diagonal secundária (\u2212).')
       : p.texto;
     atualizarControles();
+    destacarLinhaMetodo(-1);
     const fn = desenhar[p.tipo];
     const g = geracao;
     if (fn) await fn(p, animar && T > 0);
@@ -344,10 +398,39 @@
     timerTocar = window.setTimeout(() => ir(atual + 1), 2600);
   }
 
+  function atualizarBotaoResolver(estaTocando) {
+    const btn = document.getElementById('btn-resolver');
+    if (!btn) return;
+    const icone = btn.querySelector('i');
+    const rotulo = btn.querySelector('.rotulo-resolver') || btn;
+    const btnParar = document.getElementById('btn-parar');
+    if (estaTocando) {
+      btn.classList.add('tocando');
+      if (icone) icone.className = 'bi bi-pause-fill';
+      btn.setAttribute('aria-label', 'Pausar passo a passo');
+      if (rotulo && rotulo !== btn) rotulo.textContent = 'Pausar';
+      if (btnParar) btnParar.classList.remove('d-none');
+    } else {
+      btn.classList.remove('tocando');
+      if (icone) icone.className = 'bi bi-play-fill';
+      btn.setAttribute('aria-label', 'Reproduzir passo a passo');
+      if (rotulo && rotulo !== btn) {
+        rotulo.textContent = (atual > 0 && atual < passos.length - 1) ? 'Continuar' : 'Resolver';
+      }
+      if (btnParar && (atual > 0 || (cena && !cena.hidden))) {
+        btnParar.classList.remove('d-none');
+      }
+    }
+  }
+
   function tocar() {
     tocando = true;
     el.tocar.setAttribute('aria-label', 'Pausar');
     el.tocar.querySelector('i').className = 'bi bi-pause-fill';
+    if (typeof window.__travarPrimeiroQuadrante === 'function') window.__travarPrimeiroQuadrante(true);
+    const btnParar = document.getElementById('btn-parar');
+    if (btnParar) btnParar.classList.remove('d-none');
+    atualizarBotaoResolver(true);
     if (atual >= passos.length - 1) ir(0); else ir(atual + 1);
   }
 
@@ -356,6 +439,7 @@
     window.clearTimeout(timerTocar);
     el.tocar.setAttribute('aria-label', 'Reproduzir automaticamente');
     el.tocar.querySelector('i').className = 'bi bi-play-fill';
+    atualizarBotaoResolver(false);
   }
 
   el.inicio.addEventListener('click', () => { parar(); ir(0); });
@@ -363,6 +447,24 @@
   el.proximo.addEventListener('click', () => { parar(); ir(atual + 1); });
   el.fim.addEventListener('click', () => { parar(); ir(passos.length - 1); });
   el.tocar.addEventListener('click', () => (tocando ? parar() : tocar()));
+
+  document.querySelectorAll('.metodo-passo').forEach((bloco) => {
+    bloco.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const num = Number(bloco.dataset.passo);
+      const idx = passos.findIndex((s) => s.id === num);
+      if (idx !== -1) {
+        parar();
+        ir(idx);
+      }
+    });
+    bloco.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        bloco.click();
+      }
+    });
+  });
 
   document.addEventListener('keydown', (ev) => {
     const alvo = ev.target;
@@ -384,6 +486,25 @@
   conta.hidden = false;
   montarSecoes();
   ir(0);
+  atualizarBotaoResolver(false);
+
+  window.__passoAPasso = { parar, tocar, ir };
+  // No carregamento inicial (ex.: F5), mantém os campos destravados para permitir alteração
+  if (typeof window.__travarPrimeiroQuadrante === 'function') {
+    window.__travarPrimeiroQuadrante(false);
+  }
+
+  /* Autoplay automático se solicitado pelo formulário/URL */
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('autoplay') === '1') {
+    window.setTimeout(() => {
+      if (!tocando) tocar();
+    }, 600);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('autoplay');
+    const restante = url.searchParams.toString();
+    window.history.replaceState({}, '', url.pathname + (restante ? '?' + restante : ''));
+  }
 
   /* No celular/tablet os quadrantes se empilham: depois de resolver, mostrar direto a matriz. */
   if (window.location.search && window.matchMedia('(max-width: 1199.98px)').matches) {

@@ -14,7 +14,8 @@ class SistemaForm(forms.Form):
     """Sistema informado pela matriz (grade 3×3 + K) ou pelas equações (RF-001, RN-001, RN-022)."""
 
     entrada = forms.ChoiceField(label='Informar por', choices=ENTRADAS, initial='matriz', required=False)
-    n = forms.ChoiceField(label='Ordem', choices=ORDENS, initial='2')
+    # Opcional: no modo Equações a ordem vem do número de equações; no modo Matriz, ausente vale 2.
+    n = forms.ChoiceField(label='Ordem', choices=ORDENS, initial='2', required=False)
     metodo = forms.ChoiceField(label='Método', choices=[(m, NOMES_METODO[m]) for m in METODOS],
                                initial='ambos')
     equacoes = forms.CharField(

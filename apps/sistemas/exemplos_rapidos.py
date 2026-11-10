@@ -19,3 +19,13 @@ def parametros(A, K, metodo='ambos'):
 
 def lista(metodo='ambos'):
     return [{'rotulo': rotulo, 'query': urlencode(parametros(A, K, metodo))} for rotulo, A, K in EXEMPLOS]
+
+
+def exemplo_3x3_linha3():
+    """Valores de L3 do exemplo 3×3 como dicionário {'a31': '1', 'a32': '-4', ...}."""
+    for rotulo, A, K in EXEMPLOS:
+        if rotulo.startswith('3'):
+            dados = {f'a3{j}': str(v) for j, v in enumerate(A[2], start=1)}
+            dados['k3'] = str(K[2])
+            return dados
+    return {'a31': '1', 'a32': '-4', 'a33': '1', 'k3': '-4'}
