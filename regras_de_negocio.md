@@ -253,6 +253,22 @@ Quadrantes, que em telas largas (≥ 1200 px) ocupam juntos a primeira dobra, ca
 
 Celular e tablet (< 1200 px): os quadrantes se empilham na mesma ordem, cada um como uma tela, com atalhos fixos **Sistema · Matriz · Conta**; ao resolver, a página vai direto ao quadrante Matriz. A barra superior recolhe no menu.
 
+### RN-028 — Celular: tela dividida no passo a passo
+
+Em telas com menos de 1200 px de largura e pelo menos 540 px de altura (celular e tablet em pé),
+depois de resolver:
+
+- A tela se divide ao meio: o 2º quadrante (matriz, controles e seções) fica **fixo** na metade de
+  cima; o 3º (conta) **rola** na metade de baixo. A página não rola.
+- A cada passo, só a metade de baixo se move, e volta ao topo para mostrar a explicação do passo.
+  Nenhum passo muda o foco nem arrasta a página para outro quadrante.
+- Atalhos no topo: **Sistema** (o formulário em tela cheia) e **Passo a passo** (a tela dividida).
+- **Parar** leva ao 1º quadrante, com os campos liberados para uma nova escolha; **Resolver** ou
+  **Continuar** volta à tela dividida.
+- Na metade de cima a matriz é compacta e a legenda de cores sai (ela está em "Como funciona").
+- Em pé com pouca altura, deitado ou sem JavaScript, os quadrantes continuam empilhados, e mesmo
+  assim a página não salta: a conta só rola quando tem rolagem própria.
+
 ### RN-024 — Salvar a resolução em .txt
 
 - `GET /resolver/solucao.txt?…` (mesmos parâmetros do resolver) devolve `text/plain; charset=utf-8` como anexo `solucao-sistema-NxN.txt`.

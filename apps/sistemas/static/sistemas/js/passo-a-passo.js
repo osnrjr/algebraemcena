@@ -176,6 +176,20 @@
 
   function painel(no) { el.painel.appendChild(no); return no; }
 
+  /* Traz `alvo` para a vista rolando SÓ o 3º quadrante (RN-028). Se a conta não tem rolagem
+     própria (quadrantes empilhados), não mexe em nada: a página nunca sai da matriz sozinha. */
+  function rolarNaConta(alvo) {
+    const caixa = alvo && alvo.closest('.conta');
+    if (!caixa || caixa.scrollHeight <= caixa.clientHeight + 1) return;
+    const r = alvo.getBoundingClientRect();
+    const c = caixa.getBoundingClientRect();
+    const folga = 8;
+    let delta = 0;
+    if (r.top < c.top + folga) delta = r.top - c.top - folga;
+    else if (r.bottom > c.bottom - folga) delta = Math.min(r.bottom - c.bottom + folga, r.top - c.top - folga);
+    if (delta) caixa.scrollBy({ top: delta, behavior: reduzMovimento ? 'auto' : 'smooth' });
+  }
+
   function destacarLinhaMetodo(indiceLinha) {
     const bloco = document.querySelector('.metodo-passo.atual');
     if (!bloco) return;
@@ -183,9 +197,7 @@
     lis.forEach((li, idx) => {
       const eAtiva = idx === indiceLinha;
       li.classList.toggle('linha-em-execucao', eAtiva);
-      if (eAtiva) {
-        li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
+      if (eAtiva && !document.body.classList.contains('modo-dividido')) rolarNaConta(li);
     });
   }
 
@@ -360,8 +372,12 @@
       if (eAtual) blocoAtivo = bloco;
     });
 
-    if (blocoAtivo) {
-      blocoAtivo.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (document.body.classList.contains('modo-dividido')) {
+      // Tela dividida: a metade de baixo abre na explicação do passo; o histórico fica abaixo.
+      const caixa = document.querySelector('#q-conta .conta');
+      if (caixa) caixa.scrollTo({ top: 0, behavior: reduzMovimento ? 'auto' : 'smooth' });
+    } else if (blocoAtivo) {
+      rolarNaConta(blocoAtivo);
     }
 
     el.secoes.querySelectorAll('button').forEach((b) => {
@@ -506,8 +522,47 @@
     window.history.replaceState({}, '', url.pathname + (restante ? '?' + restante : ''));
   }
 
-  /* No celular/tablet os quadrantes se empilham: depois de resolver, mostrar direto a matriz. */
-  if (window.location.search && window.matchMedia('(max-width: 1199.98px)').matches) {
+  /* ---------- Celular e tablet em pé: tela dividida (RN-028) ----------
+     Matriz fixa na metade de cima, conta rolando na de baixo. Em pé com altura suficiente;
+     deitado ou baixo demais, os quadrantes continuam empilhados (e a página não salta). */
+  const telaDividida = window.matchMedia('(max-width: 1199.98px) and (min-height: 540px)');
+  const telaEmpilhada = window.matchMedia('(max-width: 1199.98px)');
+  const corpo = document.body;
+  const atalhos = document.querySelectorAll('.quadrantes-nav [data-vista]');
+
+  function mostrarVista(vista) {
+    corpo.classList.toggle('vista-sistema', vista === 'sistema');
+    atalhos.forEach((a) => {
+      if (a.dataset.vista === vista) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function aplicarDivisao() {
+    const dividir = telaDividida.matches;
+    corpo.classList.toggle('modo-dividido', dividir);
+    if (dividir) mostrarVista(corpo.classList.contains('vista-sistema') ? 'sistema' : 'passos');
+    else corpo.classList.remove('vista-sistema');
+  }
+
+  atalhos.forEach((a) => a.addEventListener('click', (ev) => {
+    if (!corpo.classList.contains('modo-dividido')) return;   // empilhado: âncora normal
+    ev.preventDefault();
+    mostrarVista(a.dataset.vista);
+  }));
+  // Parar a resolução leva ao formulário; resolver de novo volta ao passo a passo.
+  ['btn-parar', 'btn-cena-parar'].forEach((id) => {
+    const b = document.getElementById(id);
+    if (b) b.addEventListener('click', () => { if (corpo.classList.contains('modo-dividido')) mostrarVista('sistema'); });
+  });
+  window.__mostrarPassoAPasso = () => { if (corpo.classList.contains('modo-dividido')) mostrarVista('passos'); };
+
+  telaDividida.addEventListener('change', aplicarDivisao);
+  aplicarDivisao();
+
+  /* Empilhado (sem divisão): depois de resolver, mostrar direto a matriz. */
+  if (!telaDividida.matches && window.location.search && telaEmpilhada.matches) {
     document.getElementById('q-cena').scrollIntoView({ block: 'start' });
   }
 })();

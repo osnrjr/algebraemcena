@@ -30,9 +30,10 @@
 {% block content %}
 {% if trace %}
 <nav class="quadrantes-nav d-xl-none" aria-label="Quadrantes">
-  <a href="#q-entrada" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil" aria-hidden="true"></i> Sistema</a>
-  <a href="#q-cena" class="btn btn-sm btn-outline-secondary"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Matriz</a>
-  <a href="#q-conta" class="btn btn-sm btn-outline-secondary"><i class="bi bi-calculator" aria-hidden="true"></i> Conta</a>
+  <a href="#q-entrada" class="btn btn-sm btn-outline-secondary" data-vista="sistema"><i class="bi bi-pencil" aria-hidden="true"></i> Sistema</a>
+  <a href="#q-cena" class="btn btn-sm btn-outline-secondary so-empilhado"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Matriz</a>
+  <a href="#q-conta" class="btn btn-sm btn-outline-secondary so-empilhado"><i class="bi bi-calculator" aria-hidden="true"></i> Conta</a>
+  <a href="#q-cena" class="btn btn-sm btn-outline-secondary so-dividido" data-vista="passos"><i class="bi bi-layout-split" aria-hidden="true"></i> Passo a passo</a>
 </nav>
 {% endif %}
 <div class="row g-3 resolver">

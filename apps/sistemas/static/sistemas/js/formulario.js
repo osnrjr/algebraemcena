@@ -245,7 +245,8 @@
         travarPrimeiroQuadrante(true);
         if (btnParar) btnParar.classList.remove('d-none');
         btnTocar.click();
-        if (window.matchMedia('(max-width: 1199.98px)').matches) {
+        if (typeof window.__mostrarPassoAPasso === 'function') window.__mostrarPassoAPasso();
+        if (window.matchMedia('(max-width: 1199.98px)').matches && !document.body.classList.contains('modo-dividido')) {
           const qCena = document.getElementById('q-cena');
           if (qCena) qCena.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
