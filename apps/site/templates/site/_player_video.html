@@ -1,0 +1,49 @@
+{% load static %}{% comment %}
+Player do vídeo de apresentação (YouTube não listado, servido por youtube-nocookie).
+Controles próprios: reproduzir/pausar, volume e tela cheia. Sem barra de busca, sem título,
+sem link para o YouTube e sem vídeos sugeridos: ao terminar, volta para a capa com o botão play.
+O iframe só é criado no primeiro clique (static/js/player-video.js).
+
+Parâmetros do include:
+  video_id        id do vídeo (obrigatório)
+  prioridade      "alta" para a capa acima da dobra (carrega já); omitido = lazy
+  classe          classes extras no contêiner
+Do contexto: exibicao (UUID da ExibicaoLanding) liga a medição de cliques e tempo assistido
+(static/js/experimento.js, RF-016); sem ela, nada é enviado (prévia).
+{% endcomment %}
+<div class="player-apresentacao{% if classe %} {{ classe }}{% endif %}" data-player-apresentacao
+     data-video-id="{{ video_id }}" data-estado="capa" role="region" tabindex="-1"
+     {% if exibicao %}data-exibicao="{{ exibicao }}" data-evento-url="{% url 'site:experimento_evento' %}"{% endif %}
+     aria-label="Vídeo de apresentação do Álgebra em Cena">
+  <div class="pa-quadro">
+    <div class="pa-palco"><div data-palco></div></div>
+    <div class="pa-camada" data-camada aria-hidden="true"></div>
+    <div class="pa-pausa" aria-hidden="true"><span class="pa-botao-play"><i class="bi bi-play-fill"></i></span></div>
+
+    <button type="button" class="pa-capa" data-acao="iniciar" aria-label="Assistir ao vídeo de apresentação (5 minutos)">
+      <img src="{% static 'img/algebra-em-cena-capa.jpg' %}" alt="" width="1600" height="900"
+           {% if prioridade == 'alta' %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+      <span class="pa-botao-play"><i class="bi bi-play-fill" aria-hidden="true"></i><span class="pa-giro" aria-hidden="true"></span></span>
+      <span class="pa-duracao" aria-hidden="true"><i class="bi bi-clock"></i> 5 min</span>
+    </button>
+
+    <p class="pa-aviso" data-aviso role="status" hidden>Não foi possível carregar o vídeo agora. Tente novamente em instantes.</p>
+
+    <div class="pa-controles" data-controles>
+      <button type="button" class="pa-btn" data-acao="alternar" aria-label="Reproduzir">
+        <i class="bi bi-play-fill" aria-hidden="true"></i>
+      </button>
+      <div class="pa-progresso" aria-hidden="true"><span data-progresso></span></div>
+      <span class="pa-tempo" data-tempo aria-hidden="true">0:00 / 5:23</span>
+      <div class="pa-som">
+        <button type="button" class="pa-btn" data-acao="som" aria-label="Silenciar">
+          <i class="bi bi-volume-up-fill" aria-hidden="true"></i>
+        </button>
+        <input type="range" class="pa-volume" min="0" max="100" step="5" value="80" data-volume aria-label="Volume">
+      </div>
+      <button type="button" class="pa-btn" data-acao="tela" aria-label="Tela cheia">
+        <i class="bi bi-fullscreen" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -49,9 +49,15 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = env.int('DATA_UPLOAD_MAX_NUMBER_FIELDS', default
 # CSP nativa (Django >= 6.0, Doc ① §14.3). Imposta desde o início: o projeto nasce sem
 # estilo/script inline. `media-src 'self'` para os vídeos MP4 (PROJECT_SPEC §10.1).
 CDN = 'https://cdn.jsdelivr.net'
+# Vídeo de apresentação (landing): IFrame API do YouTube + player em youtube-nocookie.
+# A API só é carregada quando o visitante clica em "play" (static/js/player-video.js).
+YOUTUBE_API = 'https://www.youtube.com'
+YOUTUBE_PLAYER = 'https://www.youtube-nocookie.com'
+VIDEO_APRESENTACAO_ID = env('VIDEO_APRESENTACAO_ID', default='7zyystx4zNU')
 SECURE_CSP = {
     'default-src': [CSP.SELF],
-    'script-src': [CSP.SELF, CSP.NONCE, CDN],
+    'script-src': [CSP.SELF, CSP.NONCE, CDN, YOUTUBE_API],
+    'frame-src': [YOUTUBE_PLAYER],
     'style-src': [CSP.SELF, CSP.NONCE, CDN],
     'img-src': [CSP.SELF, 'data:'],
     'font-src': [CSP.SELF, CDN],
@@ -181,3 +187,4 @@ RATELIMIT_LOGIN = '5/m'
 RATELIMIT_RESOLVER = '30/m'
 TEMA_EXTENSOES = ['apps.sistemas.cores.tokens_css']
 RATELIMIT_SENHA = '3/h'
+RATELIMIT_EXPERIMENTO = '120/m'   # eventos do vídeo da landing (sendBeacon)

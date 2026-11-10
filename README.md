@@ -159,7 +159,7 @@ Abra <http://127.0.0.1:8000/resolver/>. Se a porta 8000 estiver ocupada, use `py
 
 | Rota | O que faz |
 | :--- | :--- |
-| `/` | Landing |
+| `/` | Landing (layouts em rodízio com o vídeo de apresentação) |
 | `/resolver/` | Resolver passo a passo (abre com o exemplo 2×2 já resolvido) |
 | `/resolver/trace.json?…` | Passos da resolução em JSON (contrato para Remotion e Manim) |
 | `/resolver/solucao.txt?…` | Resolução completa em texto, como anexo |

@@ -39,6 +39,10 @@
                                 <i class="bi bi-person-circle fs-5" aria-hidden="true"></i> {{ user.get_full_name|default:user.get_username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                {% if perms.site.experimento_gerenciar %}
+                                <li><a class="dropdown-item" href="{% url 'site:experimento' %}"><i class="bi bi-bar-chart me-2" aria-hidden="true"></i>Rodízio da página inicial</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
                                 <li>
                                     <form method="post" action="{% url 'accounts:logout' %}">
                                         {% csrf_token %}

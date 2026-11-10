@@ -89,6 +89,13 @@ RN-020 e RN-021.
 
 Landing, "Como funciona" e perguntas frequentes (PROJECT_SPEC §3).
 
+### RF-016 — Landing em rodízio com vídeo de apresentação
+
+A landing tem 5 layouts com o vídeo de apresentação (YouTube não listado, player próprio).
+Cada acesso recebe o próximo layout ativo (round robin global). O painel `/experimento/`,
+sem link público, define a ordem e quais layouts participam e mostra, por layout, exibições,
+cliques no vídeo, tempo assistido e percentual assistido. RN-025 a RN-027.
+
 ---
 
 ## 3. Regras de negócio — motor de cálculo
@@ -280,6 +287,39 @@ No passo `substituir_coluna`, a coluna original sai (desliza para fora e desbota
 Nenhuma informação só por cor: sempre rótulo (x, y, z, K, Lᵢ, Cⱼ, +, −) e, quando houver, padrão de borda. Sob `prefers-reduced-motion`, as animações viram troca instantânea de estado.
 
 ---
+
+### RN-025 — Rodízio da landing (round robin)
+
+- Ordem: `ordem` crescente e, no empate, o número da variação; só as ativas entram.
+- Um contador global (linha única, travada na transação) avança a cada acesso `GET` e escolhe
+  `ativas[contador mod n]`. Alterar ordem ou ativas vale a partir do próximo acesso.
+- Padrão: as 5 variações ativas, na ordem 1 a 5. O painel não deixa salvar sem nenhuma ativa;
+  se mesmo assim nenhuma estiver ativa, a landing mostra a variação 1 sem registrar nada.
+- Robôs e clientes sem navegador (agente vazio ou conhecido: bot, crawler, curl, prévias de link)
+  e requisições `HEAD` não avançam o rodízio nem contam.
+- A landing responde com `Cache-Control: no-cache, no-store`: cada acesso chega ao servidor.
+
+### RN-026 — Medição do vídeo
+
+- Cada acesso cria uma exibição (UUID). O UUID vai para a página e é a única autorização para
+  enviar eventos a `/experimento/evento/` (POST sem CSRF, por `sendBeacon`; limite por IP).
+- Eventos: `clique` (play na capa; cada replay conta), `progresso` (a cada 15 s em reprodução,
+  ao pausar e ao sair da página) e `fim`.
+- Tempo assistido = tempo em reprodução, somando replays. Os valores só crescem e são limitados:
+  tempo ≤ tempo decorrido desde o acesso + 5 s; duração ≤ 4 h; cliques ≤ 50 por exibição.
+- Eventos só valem até 12 h após o acesso. Token inválido ou vencido recebe `204` sem efeito
+  (não revela quais existem).
+- Concluiu: evento `fim` ou posição ≥ 95% da duração.
+- Nenhum dado pessoal é guardado: nem IP, nem agente, nem cookie de rastreio.
+
+### RN-027 — Painel do rodízio
+
+- Rota `/experimento/` (e prévias `/experimento/previa/<n>/`): anônimo vai para o login; logado
+  sem `site.experimento_gerenciar` recebe `403`. O link aparece só no menu de quem tem a permissão.
+- Por variação: exibições, exibições com play (e taxa), cliques, tempo assistido total, média por
+  play, % assistido (tempo ÷ duração, limitado a 100% por exibição, na média de quem deu play) e
+  quantos foram até o fim. Períodos: hoje, 7 dias, 30 dias e tudo.
+- A prévia mostra uma variação sem avançar o rodízio nem registrar exibição.
 
 ## 5. Regras de negócio — exemplos e vídeos
 

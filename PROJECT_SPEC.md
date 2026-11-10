@@ -402,6 +402,7 @@ Regras do Doc ① §11.2: toda função de usuário tem item de menu **na aplica
 | Administração | Matriz RBAC | `accounts:matriz` | `accounts.matriz` | 3, 4 |
 | Administração | Aparência (tema) | `site:tema` | `site.tema_editar` | 3, 4 (delegável) |
 | Administração | Visibilidade pública | `site:visibilidade` | `site.visibilidade_publica` | 3, 4 (delegável) |
+| Administração | Rodízio da página inicial (sem link público) | `site:experimento` | `site.experimento_gerenciar` | 3, 4 (delegável) |
 
 ---
 
@@ -431,6 +432,7 @@ Regras do Doc ① §11.2: toda função de usuário tem item de menu **na aplica
 | Atribuir perfis (`accounts.atribuir_perfis`) | ✖ | ✖ | ✖ | ✔ (até 3) | ✔ (até 4) |
 | Alterar o tema (`site.tema_editar`, delegável) | ✖ | ✖ | ✖ | ✔ | ✔ |
 | Ativar/desativar páginas públicas (`site.visibilidade_publica`, delegável) | ✖ | ✖ | ✖ | ✔ | ✔ |
+| Gerenciar o rodízio da landing e ver as estatísticas do vídeo (`site.experimento_gerenciar`, delegável) | ✖ | ✖ | ✖ | ✔ | ✔ |
 | Criar e editar os próprios exemplos (`exemplos.gerenciar`) | ✔ | ✖ | ✖ | ✔ | ✔ |
 | Publicar/arquivar os próprios exemplos (`exemplos.publicar`) | ✔ | ✖ | ✖ | ✔ | ✔ |
 | Gerenciar exemplos de qualquer autor (`exemplos.gerenciar_todos`) | ✖ | ✖ | ✖ | ✔ | ✔ |

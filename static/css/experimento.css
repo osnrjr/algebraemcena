@@ -1,0 +1,38 @@
+/* Painel do rodízio da landing (/experimento/) e barra da prévia (RF-016). */
+
+/* Barra flutuante da prévia */
+/* Seletor flutuante das variações */
+.proto-seletor { position: fixed; left: 50%; bottom: 1rem; z-index: 1040; translate: -50% 0;
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; justify-content: center;
+  width: max-content; max-width: calc(100vw - 2rem); padding: .5rem .75rem; border-radius: 1rem;
+  background: var(--tema-superficie); border: 1px solid var(--tema-borda); box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .4);
+  font-size: .875rem; }
+.proto-rotulo { font-weight: 700; white-space: nowrap; }
+.proto-opcoes { display: inline-flex; gap: .25rem; }
+.proto-opcoes a { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%;
+  border: 1px solid var(--tema-borda); color: var(--tema-escrita); text-decoration: none; font-weight: 700; }
+.proto-opcoes a:hover { background: var(--tema-superficie-2); }
+.proto-opcoes a.ativa { background: var(--tema-destaque); border-color: var(--tema-destaque); color: var(--tema-sobre-destaque); }
+.proto-descricao { color: var(--tema-escrita-suave); max-width: 34rem; }
+main { padding-bottom: 5rem; }
+.proto-rotulo { color: var(--tema-escrita); text-decoration: none; }
+.proto-opcoes a.inativa:not(.ativa) { opacity: .45; border-style: dashed; }
+@media (max-width: 575.98px) { .proto-descricao { display: none; } }
+
+
+/* Painel */
+.ordem-input { width: 4.5rem; }
+.tabela-experimento thead th { white-space: nowrap; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--tema-escrita-suave); font-weight: 600; }
+.tabela-experimento td, .tabela-experimento th { vertical-align: middle; }
+.tabela-experimento .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tabela-experimento tfoot td { font-weight: 700; border-top: 2px solid var(--tema-borda); }
+/* <progress> em vez de largura inline (a CSP não permite style="") */
+.barra-taxa { display: block; width: 100%; height: .3rem; margin-top: .3rem; border: 0; border-radius: 999px;
+  appearance: none; background: var(--tema-superficie-2); overflow: hidden; }
+.barra-taxa::-webkit-progress-bar { background: var(--tema-superficie-2); }
+.barra-taxa::-webkit-progress-value { background: var(--tema-destaque); border-radius: 999px; }
+.barra-taxa::-moz-progress-bar { background: var(--tema-destaque); border-radius: 999px; }
+.variante-num { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: var(--tema-superficie-2); font-weight: 700; flex: none; }
+.variante-inativa { opacity: .55; }

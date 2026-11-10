@@ -1,0 +1,95 @@
+/* Player do vídeo de apresentação (site/_player_video.html + js/player-video.js).
+   Estados em [data-estado]: capa | carregando | tocando | pausado. */
+.player-apresentacao {
+  position: relative; isolation: isolate; overflow: hidden; background: #000; color: #fff;
+  border-radius: calc(var(--raio) + .25rem); border: 1px solid var(--tema-borda);
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, .35);
+}
+.player-apresentacao:focus:not(:focus-visible) { outline: none; }
+.pa-quadro { position: relative; width: 100%; aspect-ratio: 16 / 9; }
+
+/* iframe 32% mais alto que o quadro: o vídeo 16:9 ocupa exatamente o quadro e as faixas de cima
+   (título/link) e de baixo (prateleira de vídeos) ficam fora da área visível. */
+.pa-palco { position: absolute; inset: 0; overflow: hidden; }
+.pa-palco > iframe, .pa-palco > [data-palco] { position: absolute; left: 0; top: -16%; width: 100%; height: 132%;
+  border: 0; pointer-events: none; }
+
+.pa-camada { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+.player-apresentacao[data-estado="tocando"]:not(.pa-ativo) .pa-camada { cursor: none; }
+
+/* Capa: imagem + botão play no centro */
+.pa-capa { position: absolute; inset: 0; z-index: 4; display: block; width: 100%; padding: 0; border: 0;
+  background: #000; cursor: pointer; }
+.pa-capa img { width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: filter var(--duracao), transform .4s ease; }
+.pa-capa:hover img, .pa-capa:focus-visible img { filter: brightness(.82); transform: scale(1.015); }
+.pa-capa:focus-visible { outline: 3px solid var(--tema-destaque); outline-offset: -3px; }
+.player-apresentacao:not([data-estado="capa"]):not([data-estado="carregando"]) .pa-capa { visibility: hidden; opacity: 0; }
+
+.pa-botao-play { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; place-items: center;
+  width: clamp(3.5rem, 9vw, 6rem); aspect-ratio: 1; border-radius: 50%;
+  background: rgba(var(--tema-destaque-rgb), .94); color: var(--tema-sobre-destaque);
+  box-shadow: 0 0 0 .5rem rgba(255, 255, 255, .18), 0 .75rem 2rem rgba(0, 0, 0, .45);
+  font-size: clamp(1.9rem, 4.6vw, 3.1rem); transition: transform var(--duracao), box-shadow var(--duracao); }
+.pa-botao-play .bi { margin-left: .12em; line-height: 1; }
+.pa-capa:hover .pa-botao-play, .pa-capa:focus-visible .pa-botao-play {
+  transform: scale(1.08); box-shadow: 0 0 0 .7rem rgba(255, 255, 255, .25), 0 .75rem 2rem rgba(0, 0, 0, .5); }
+.pa-duracao { position: absolute; right: .75rem; bottom: .75rem; padding: .2rem .55rem; border-radius: 999px;
+  background: rgba(0, 0, 0, .7); color: #fff; font-size: .8rem; font-weight: 600; }
+
+/* Carregando: o ícone vira um anel girando */
+.pa-giro { display: none; position: absolute; inset: 18%; border-radius: 50%;
+  border: .25rem solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: pa-girar .8s linear infinite; }
+.player-apresentacao[data-estado="carregando"] .pa-capa .bi { visibility: hidden; }
+.player-apresentacao[data-estado="carregando"] .pa-giro { display: block; }
+@keyframes pa-girar { to { rotate: 360deg; } }
+
+/* Pausado: véu escuro + botão play (os cliques continuam indo para .pa-camada) */
+.pa-pausa { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, .35), rgba(0, 0, 0, .6));
+  transition: opacity var(--duracao); }
+.player-apresentacao[data-estado="pausado"] .pa-pausa { opacity: 1; }
+
+/* Barra de controles */
+.pa-controles { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; align-items: center;
+  gap: .35rem; padding: 1.75rem .6rem .45rem; color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, .78), rgba(0, 0, 0, 0));
+  opacity: 0; translate: 0 .5rem; transition: opacity .2s, translate .2s; }
+.player-apresentacao.pa-ativo .pa-controles,
+.player-apresentacao[data-estado="pausado"] .pa-controles { opacity: 1; translate: 0 0; }
+.player-apresentacao[data-estado="capa"] .pa-controles,
+.player-apresentacao[data-estado="carregando"] .pa-controles { display: none; }
+
+.pa-btn { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: #fff; font-size: 1.35rem; cursor: pointer; }
+.pa-btn:hover { background: rgba(255, 255, 255, .16); }
+.pa-btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.pa-btn[hidden] { display: none; }
+
+.pa-progresso { flex: 1; height: .25rem; border-radius: 999px; background: rgba(255, 255, 255, .28); overflow: hidden; }
+.pa-progresso span { display: block; width: 0; height: 100%; background: var(--tema-destaque); }
+.pa-tempo { font: 500 .8rem/1 ui-monospace, Menlo, Consolas, monospace; white-space: nowrap; opacity: .9; padding: 0 .25rem; }
+
+.pa-som { display: flex; align-items: center; }
+.pa-volume { --pa-nivel: 80%; width: 5.5rem; height: .25rem; margin: 0 .35rem 0 .1rem; cursor: pointer;
+  appearance: none; border-radius: 999px;
+  background: linear-gradient(to right, #fff var(--pa-nivel), rgba(255, 255, 255, .3) var(--pa-nivel)); }
+.pa-volume::-webkit-slider-thumb { appearance: none; width: .85rem; height: .85rem; border-radius: 50%; background: #fff; border: 0; }
+.pa-volume::-moz-range-thumb { width: .85rem; height: .85rem; border-radius: 50%; background: #fff; border: 0; }
+.pa-volume:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+
+.pa-aviso { position: absolute; left: 50%; bottom: 1rem; z-index: 6; translate: -50% 0; margin: 0; max-width: 90%;
+  padding: .4rem .8rem; border-radius: var(--raio); background: rgba(0, 0, 0, .8); font-size: .875rem; text-align: center; }
+
+/* Tela cheia: quadro 16:9 centralizado no preto */
+.player-apresentacao:fullscreen { border: 0; border-radius: 0; display: grid; place-items: center; }
+.player-apresentacao:fullscreen .pa-quadro { width: min(100vw, 177.78vh); }
+
+@media (max-width: 575.98px) {
+  .pa-volume { display: none; }                 /* no celular: só o botão silenciar */
+  .pa-tempo { font-size: .72rem; }
+  .pa-duracao { right: .5rem; bottom: .5rem; font-size: .72rem; }
+}
+@media (hover: none) {
+  .player-apresentacao[data-estado="tocando"] .pa-controles { opacity: 1; translate: 0 0; }
+}

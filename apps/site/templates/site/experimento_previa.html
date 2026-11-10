@@ -1,0 +1,16 @@
+{% extends "site/landing.html" %}{% load static %}
+{% block title %}Prévia {{ atual.numero }}: {{ atual.nome }} — Álgebra em Cena{% endblock %}
+{% block meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block landing_head %}<link href="{% static 'css/experimento.css' %}" rel="stylesheet">{% endblock %}
+{% block previa %}
+<nav class="proto-seletor" aria-label="Prévia das variações">
+  <a class="proto-rotulo" href="{% url 'site:experimento' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Painel</a>
+  <span class="proto-opcoes">
+    {% for v in variantes %}
+      <a href="{% url 'site:experimento_previa' v.numero %}" class="{% if v.numero == atual.numero %}ativa{% endif %}{% if not v.ativa %} inativa{% endif %}"
+         title="{{ v.nome }}{% if not v.ativa %} (fora do rodízio){% endif %}"{% if v.numero == atual.numero %} aria-current="page"{% endif %}>{{ v.numero }}</a>
+    {% endfor %}
+  </span>
+  <span class="proto-descricao"><strong>Prévia — {{ atual.nome }}.</strong> {{ atual.descricao }} Nada aqui é contado.</span>
+</nav>
+{% endblock %}

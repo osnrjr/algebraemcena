@@ -1,0 +1,128 @@
+{% extends "base.html" %}{% load static experimento_tags %}
+{% block title %}Rodízio da página inicial — Álgebra em Cena{% endblock %}
+{% block meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block page_title %}Rodízio da página inicial{% endblock %}
+{% block page_subtitle %}Layouts com o vídeo de apresentação: ordem, ativos e desempenho{% endblock %}
+{% block extra_head %}<link href="{% static 'css/experimento.css' %}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  {# ---------- Estatísticas ---------- #}
+  <div class="col-12">
+    <section class="card p-4 h-100" aria-labelledby="estatisticas">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+        <h2 id="estatisticas" class="h5 mb-0">Desempenho do vídeo por variação</h2>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Período">
+          {% for chave, rotulo in periodos %}
+            <a href="?periodo={{ chave }}" class="btn btn-outline-secondary{% if chave == periodo %} active{% endif %}"{% if chave == periodo %} aria-current="true"{% endif %}>{{ rotulo }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      <p class="small texto-suave">Exibições são acessos à página inicial. Play conta quem clicou no vídeo. O tempo assistido soma só o tempo em reprodução; o percentual é tempo assistido ÷ duração do vídeo, limitado a 100% por exibição, na média de quem deu play.</p>
+
+      <div class="table-responsive">
+        <table class="table table-sm tabela-experimento mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Variação</th>
+              <th scope="col" class="num">Exibições</th>
+              <th scope="col" class="num">Com play</th>
+              <th scope="col" class="num">Cliques</th>
+              <th scope="col" class="num">Tempo assistido</th>
+              <th scope="col" class="num">Média por play</th>
+              <th scope="col" class="num">% assistido</th>
+              <th scope="col" class="num">Até o fim</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in linhas %}
+              <tr class="{% if not l.variante.ativa %}variante-inativa{% endif %}">
+                <th scope="row" class="fw-normal">
+                  <div class="d-flex align-items-center gap-2"><span class="variante-num">{{ l.variante.numero }}</span>{{ l.variante.nome }}</div>
+                </th>
+                <td class="num">{{ l.exibicoes }}</td>
+                <td class="num">
+                  {{ l.com_play }} <span class="texto-suave small">({{ l.taxa_play|percentual }})</span>
+                  {% if l.exibicoes %}<progress class="barra-taxa" max="100" value="{% widthratio l.com_play l.exibicoes 100 %}" aria-hidden="true"></progress>{% endif %}
+                </td>
+                <td class="num">{{ l.cliques }}</td>
+                <td class="num">{{ l.segundos|duracao }}</td>
+                <td class="num">{{ l.segundos_por_play|duracao }}</td>
+                <td class="num">{{ l.percentual_medio|percentual }}</td>
+                <td class="num">{{ l.concluiram }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="num">{{ total.exibicoes }}</td>
+              <td class="num">{{ total.com_play }} <span class="texto-suave small fw-normal">({{ total.taxa_play|percentual }})</span></td>
+              <td class="num">{{ total.cliques }}</td>
+              <td class="num">{{ total.segundos|duracao }}</td>
+              <td class="num">{{ total.segundos_por_play|duracao }}</td>
+              <td class="num">{{ total.percentual_medio|percentual }}</td>
+              <td class="num">{{ total.concluiram }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </div>
+  {# ---------- Configuração do rodízio ---------- #}
+  <div class="col-lg-9 col-xl-7">
+    <section class="card p-4 h-100" aria-labelledby="rodizio">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+        <h2 id="rodizio" class="h5 mb-0">Rodízio</h2>
+        {% if proxima %}<span class="badge text-bg-secondary fw-normal">Próximo acesso: {{ proxima.numero }}. {{ proxima.nome }}</span>{% endif %}
+      </div>
+      <p class="small texto-suave">Cada acesso à página inicial recebe a próxima variação ativa, nesta ordem, e o ciclo recomeça. Robôs não entram no rodízio.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% if formset.non_form_errors %}
+          <div class="alert alert-danger py-2" role="alert">{% for e in formset.non_form_errors %}{{ e }}{% endfor %}</div>
+        {% endif %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle tabela-experimento mb-3">
+            <thead><tr><th scope="col">Ordem</th><th scope="col">Variação</th><th scope="col" class="text-center">Ativa</th><th scope="col"><span class="visually-hidden">Prévia</span></th></tr></thead>
+            <tbody>
+              {% for form in formset %}
+                {% with v=form.instance %}
+                <tr class="{% if not v.ativa %}variante-inativa{% endif %}">
+                  <td>
+                    {{ form.id }}
+                    <label class="visually-hidden" for="{{ form.ordem.id_for_label }}">Ordem de {{ v.nome }}</label>
+                    {{ form.ordem }}
+                    {% for e in form.ordem.errors %}<div class="small text-danger">{{ e }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="variante-num">{{ v.numero }}</span>
+                      <span><strong class="d-block">{{ v.nome }}</strong><span class="small texto-suave">{{ v.descricao }}</span></span>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="form-check form-switch d-inline-block mb-0">
+                      {{ form.ativa }}
+                      <label class="visually-hidden" for="{{ form.ativa.id_for_label }}">{{ v.nome }} no rodízio</label>
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'site:experimento_previa' v.numero %}" target="_blank" rel="noopener"
+                       title="Ver a variação sem contar acesso"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">Prévia de {{ v.nome }}</span></a>
+                  </td>
+                </tr>
+                {% endwith %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> Salvar rodízio</button>
+      </form>
+    </section>
+  </div>
+
+</div>
+{% endblock %}

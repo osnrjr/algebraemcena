@@ -1,0 +1,47 @@
+/* Layouts da landing em rodízio (RF-016): blocos de site/_landing_variantes.html. */
+
+/* Comum */
+.sobretitulo { margin-bottom: .35rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--tema-destaque); }
+/* Largo, mas sempre cabendo inteiro na altura da janela (descontados navbar e respiro) */
+.player-largo { max-width: min(1040px, calc((100svh - 8.5rem) * 16 / 9)); margin-inline: auto; }
+
+/* 2 — topo centralizado */
+.hero-centro-texto { max-width: 52rem; }
+.hero-centro .d-flex { justify-content: center; }
+
+/* 3 — roteiro ao lado do vídeo */
+.roteiro-video { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .65rem; }
+.roteiro-video li { display: flex; align-items: center; gap: .65rem; }
+.chip-cor { display: inline-grid; place-items: center; flex: none; width: 1.9rem; height: 1.6rem; border-radius: .4rem;
+  font: 700 .9rem/1 ui-monospace, Menlo, Consolas, monospace; border: 1px solid currentColor; }
+.chip-cor.col-x { color: var(--mat-x); background: rgba(var(--mat-x-rgb), .15); }
+.chip-cor.col-y { color: var(--mat-y); background: rgba(var(--mat-y-rgb), .15); }
+.chip-cor.col-z { color: var(--mat-z); background: rgba(var(--mat-z-rgb), .15); }
+.chip-cor.col-k { color: var(--mat-k); background: rgba(var(--mat-k-rgb), .15); }
+
+/* 4 — faixa de ponta a ponta (o <main> tem px-4 = 1.5rem) */
+.faixa-video { margin: 1rem -1.5rem 1.5rem; padding: 3rem 1.5rem 3.5rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--tema-destaque-rgb), .22), transparent 65%), var(--tema-superficie-2);
+  border-block: 1px solid var(--tema-borda); }
+
+/* 5 — cartão com miniatura + modal */
+.video-cartao { display: flex; align-items: center; gap: 1rem; padding: .6rem 1.1rem .6rem .6rem; max-width: 100%;
+  border: 1px solid var(--tema-borda); border-radius: calc(var(--raio) + .25rem); background: var(--tema-superficie);
+  color: var(--tema-escrita); box-shadow: var(--sombra); transition: border-color var(--duracao), transform var(--duracao); }
+.video-cartao:hover { border-color: var(--tema-destaque); transform: translateY(-1px); }
+.video-cartao-capa { position: relative; flex: none; width: 9.5rem; aspect-ratio: 16 / 9; border-radius: var(--raio); overflow: hidden; }
+.video-cartao-capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.video-cartao-play { position: absolute; left: 50%; top: 50%; translate: -50% -50%; display: grid; place-items: center;
+  width: 2.4rem; aspect-ratio: 1; border-radius: 50%; font-size: 1.4rem;
+  background: rgba(var(--tema-destaque-rgb), .94); color: var(--tema-sobre-destaque); }
+.video-cartao-play .bi { margin-left: .1em; }
+.modal-video .modal-dialog { max-width: min(1140px, calc((100svh - 7rem) * 16 / 9), calc(100vw - 2rem)); margin-inline: auto; }
+.modal-video .modal-content { background: transparent; border: 0; box-shadow: none; }
+.modal-video .player-apresentacao { border: 0; }
+.modal-video-fechar { position: absolute; top: -2.25rem; right: 0; z-index: 10; opacity: .9; }
+.modal-backdrop.show { opacity: .85; }
+
+@media (max-width: 575.98px) {
+  .faixa-video { padding: 2rem 1rem 2.5rem; }
+}

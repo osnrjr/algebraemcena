@@ -1,0 +1,99 @@
+{% load static %}{% comment %}
+Layouts da landing em rodízio (RF-016). `variante` (1..5) escolhe o bloco; o resto da página
+(FAQ e chamada final) é comum. O player herda `video_id` e `exibicao` do contexto.
+Para incluir uma variação nova: bloco aqui + linha em VarianteLanding (migração de dados).
+{% endcomment %}
+{% if variante == 1 %}
+{# 1 — Ao lado do título: o player ocupa o lugar do cartão de exemplo #}
+<section class="hero">
+  <div class="row align-items-center g-4 g-xl-5">
+    <div class="col-lg-6">{% include "site/_hero_texto.html" %}</div>
+    <div class="col-lg-6">{% include "site/_player_video.html" with prioridade="alta" %}</div>
+  </div>
+</section>
+{% include "site/_beneficios.html" %}
+
+{% elif variante == 2 %}
+{# 2 — Destaque sob o título: texto centralizado e player grande abaixo #}
+<section class="hero hero-centro text-center">
+  <div class="mx-auto hero-centro-texto">{% include "site/_hero_texto.html" %}</div>
+  <div class="player-largo mt-4 mt-lg-5">{% include "site/_player_video.html" with prioridade="alta" %}</div>
+</section>
+{% include "site/_beneficios.html" %}
+
+{% elif variante == 3 %}
+{# 3 — Seção dedicada: topo como hoje; vídeo com o roteiro ao lado #}
+<section class="hero">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-6">{% include "site/_hero_texto.html" %}</div>
+    <div class="col-lg-6">{% include "site/_hero_demo.html" %}</div>
+  </div>
+</section>
+{% include "site/_beneficios.html" %}
+<section class="py-4" aria-labelledby="video">
+  <div class="row align-items-center g-4 g-xl-5">
+    <div class="col-lg-5 order-2 order-lg-1">
+      <p class="sobretitulo">Apresentação · 5 min</p>
+      <h2 id="video" class="h3">Veja a álgebra entrar em cena</h2>
+      <p class="texto-suave">Em cinco minutos, o mesmo caminho que o resolver mostra passo a passo:</p>
+      <ol class="roteiro-video">
+        <li><span class="chip-cor col-x">x</span> Do sistema à matriz, uma cor por coluna</li>
+        <li><span class="chip-cor col-k">K</span> Determinante e regra de Cramer 2×2</li>
+        <li><span class="chip-cor col-z">z</span> Regra de Sarrus e Dx, Dy, Dz no 3×3</li>
+        <li><span class="chip-cor col-y">=</span> Escalonamento e a classificação SPD, SPI ou SI</li>
+      </ol>
+    </div>
+    <div class="col-lg-7 order-1 order-lg-2">{% include "site/_player_video.html" %}</div>
+  </div>
+</section>
+
+{% elif variante == 4 %}
+{# 4 — Faixa de cinema: faixa de ponta a ponta logo após o topo #}
+<section class="hero">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-6">{% include "site/_hero_texto.html" %}</div>
+    <div class="col-lg-6">{% include "site/_hero_demo.html" %}</div>
+  </div>
+</section>
+<section class="faixa-video" aria-labelledby="video">
+  <div class="text-center mb-4">
+    <p class="sobretitulo">Apresentação · 5 min</p>
+    <h2 id="video" class="h3 mb-0">Do sistema à classificação, em cinco minutos</h2>
+  </div>
+  <div class="player-largo">{% include "site/_player_video.html" %}</div>
+</section>
+{% include "site/_beneficios.html" %}
+
+{% else %}
+{# 5 — Cartão + janela: miniatura discreta; o vídeo abre num modal #}
+<section class="hero">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-6">
+      {% include "site/_hero_texto.html" %}
+      <button type="button" class="video-cartao mt-4" data-bs-toggle="modal" data-bs-target="#modalVideo">
+        <span class="video-cartao-capa">
+          <img src="{% static 'img/algebra-em-cena-capa.jpg' %}" alt="" width="1600" height="900" fetchpriority="high">
+          <span class="video-cartao-play"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+        </span>
+        <span class="text-start">
+          <strong class="d-block">Assista à apresentação</strong>
+          <span class="small texto-suave">Cramer, Sarrus e escalonamento em 5 min</span>
+        </span>
+      </button>
+    </div>
+    <div class="col-lg-6">{% include "site/_hero_demo.html" %}</div>
+  </div>
+</section>
+{% include "site/_beneficios.html" %}
+<div class="modal fade modal-video" id="modalVideo" tabindex="-1" aria-label="Vídeo de apresentação" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <button type="button" class="btn-close btn-close-white modal-video-fechar" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      {% include "site/_player_video.html" %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% include "site/_faq.html" %}
+{% include "site/_cta_final.html" %}
