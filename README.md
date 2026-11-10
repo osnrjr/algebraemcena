@@ -2,6 +2,14 @@
 
 > 🌐 **Acesse online:** [https://algebraemcena.pythonanywhere.com](https://algebraemcena.pythonanywhere.com)
 
+![Página inicial do Álgebra em Cena com o vídeo de apresentação](docs/img/apresentacao.png)
+
+![Painel do rodízio da página inicial com as métricas do vídeo por variação](docs/img/metricas.png)
+
+[![Assistir à apresentação do Álgebra em Cena (5 min)](docs/img/video-apresentacao.jpg)](https://youtu.be/7zyystx4zNU "Assistir à apresentação (5 min)")
+
+<sub>▶ Clique na imagem para assistir à apresentação (5 min). O GitHub não reproduz vídeos dentro do README; o vídeo abre no YouTube.</sub>
+
 Resolve sistemas lineares 2×2 e 3×3 **passo a passo**, com animações que destacam em cores as linhas e as colunas substituídas, e classifica o sistema como **SPD**, **SPI** ou **SI**.
 
 Projeto Django `algebra_linear`. Status: **em desenvolvimento** — resolver público funcionando (marcos M0 a M2); player Remotion, exemplos do professor e vídeos Manim ainda por fazer (ver [Roteiro](#roteiro)).
