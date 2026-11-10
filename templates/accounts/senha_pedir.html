@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Recuperar senha — Álgebra em Cena{% endblock %}
+{% block toolbar %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center py-5"><div class="col-sm-10 col-md-6 col-lg-4"><div class="card p-4">
+  <h1 class="h4">Recuperar senha</h1>
+  <p class="small texto-suave">Informe o e-mail da sua conta. Se ele estiver cadastrado, você recebe um link para criar uma senha nova.</p>
+  {% if bloqueado %}<div class="alert alert-danger" role="alert">Muitas tentativas. Tente de novo mais tarde.</div>{% endif %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <label class="form-label" for="{{ form.email.id_for_label }}">E-mail</label>
+    <input class="form-control mb-3" type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}" autocomplete="email" required>
+    {% if form.email.errors %}<p class="erro-campo">{{ form.email.errors|join:" " }}</p>{% endif %}
+    <button type="submit" class="btn btn-primary w-100">Enviar link</button>
+  </form>
+  <p class="mt-3 mb-0 text-center small"><a href="{% url 'accounts:login' %}">Voltar ao login</a></p>
+</div></div></div>
+{% endblock %}

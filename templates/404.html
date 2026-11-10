@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Página não encontrada — Álgebra em Cena{% endblock %}
+{% block page_title %}Página não encontrada{% endblock %}
+{% block content %}
+<div class="card p-4">
+  <p class="lead">Essa página não está no sistema. Nenhuma equação aponta para ela.</p>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" href="{% url 'sistemas:resolver' %}">Ir para o Resolver</a>
+    <a class="btn btn-outline-secondary" href="{% url 'site:landing' %}">Voltar ao início</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Como funciona — Álgebra em Cena{% endblock %}
+{% block page_title %}Como funciona{% endblock %}
+{% block page_subtitle %}Cores, métodos e classificação{% endblock %}
+{% block extra_head %}<link href="{% static 'sistemas/css/sistemas.css' %}" rel="stylesheet">{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <section class="card p-4 mb-4" aria-labelledby="cf-cores">
+      <h2 id="cf-cores" class="h5">Legenda de cores</h2>
+      <p class="texto-suave">As cores nunca aparecem sozinhas: toda coluna e linha tem rótulo.</p>
+      {% include "sistemas/_legenda.html" %}
+    </section>
+    <section class="card p-4 mb-4" aria-labelledby="cf-cramer">
+      <h2 id="cf-cramer" class="h5">Regra de Cramer</h2>
+      <p>Escreva o sistema como A · X = K. Calcule D = det(A). Para cada incógnita, troque a sua coluna em A pela coluna K, <strong>mantendo as outras colunas no lugar</strong>, e calcule o determinante: Dx, Dy, Dz. Se D ≠ 0, cada incógnita vale Dⱼ / D.</p>
+      <ul>
+        <li><strong>2×2 (produto cruzado):</strong> D = a₁₁·a₂₂ − a₁₂·a₂₁.</li>
+        <li><strong>3×3 (Sarrus):</strong> repita as duas primeiras colunas à direita; some os três produtos descendentes e subtraia os três ascendentes.</li>
+        <li>Dz em 3×3 é <span class="font-monospace">[a₁₁ a₁₂ K₁; a₂₁ a₂₂ K₂; a₃₁ a₃₂ K₃]</span>: só a 3ª coluna muda.</li>
+      </ul>
+    </section>
+    <section class="card p-4 mb-4" aria-labelledby="cf-escalonamento">
+      <h2 id="cf-escalonamento" class="h5">Escalonamento (operações elementares)</h2>
+      <ul class="mb-0">
+        <li><strong>E1</strong> troca de linhas: <span class="font-monospace">L1 ↔ L2</span></li>
+        <li><strong>E2</strong> multiplica uma linha por c ≠ 0: <span class="font-monospace">L2 ← (1/3)·L2</span></li>
+        <li><strong>E3</strong> soma o múltiplo de outra linha: <span class="font-monospace">L2 ← L2 + 2·L1</span></li>
+        <li><strong>E4</strong> combinação sem frações: <span class="font-monospace">L2 ← 3·L2 − 2·L1</span></li>
+      </ul>
+    </section>
+  </div>
+  <div class="col-lg-5">
+    <section class="card p-4" aria-labelledby="cf-classificacao">
+      <h2 id="cf-classificacao" class="h5">Classificação</h2>
+      <p class="texto-suave">r = posto(A), r′ = posto([A | K]), n = número de incógnitas.</p>
+      <dl class="mb-0">
+        <dt><span class="selo selo-SPD">SPD</span></dt><dd>r = r′ = n: uma única solução.</dd>
+        <dt><span class="selo selo-SPI">SPI</span></dt><dd>r = r′ &lt; n: infinitas soluções, com n − r parâmetros livres.</dd>
+        <dt><span class="selo selo-SI">SI</span></dt><dd>r &lt; r′: aparece uma linha 0 = c com c ≠ 0; nenhuma solução.</dd>
+      </dl>
+      <hr>
+      <p class="mb-0"><strong>Atenção:</strong> D = 0 não decide sozinho. O sistema x + y + z = 1, x + y + z = 2, x + y + z = 3 tem D = Dx = Dy = Dz = 0 e é impossível.</p>
+    </section>
+    <a class="btn btn-primary mt-3" href="{% url 'sistemas:resolver' %}"><i class="bi bi-play-fill" aria-hidden="true"></i> Resolver um sistema</a>
+  </div>
+</div>
+{% endblock %}

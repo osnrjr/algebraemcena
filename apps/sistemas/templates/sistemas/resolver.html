@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Resolver sistema — Álgebra em Cena{% endblock %}
+{% block extra_head %}<link href="{% static 'sistemas/css/sistemas.css' %}" rel="stylesheet">{% endblock %}
+{% block toolbar %}{% endblock %}
+{% block main_classe %}container-fluid px-3 px-md-4 pt-3 pb-3 resolver-main{% endblock %}
+{% block navbar_nav_classe %}{% endblock %}
+
+{# Barra superior: parâmetros gerais (RN-023) #}
+{% block navbar_ferramentas %}
+<div class="navbar-ferramentas ms-lg-3 me-lg-auto">
+  <div class="titulo-pagina">
+    <h1 class="h6 mb-0">Resolver sistema linear</h1>
+    <small class="texto-suave d-none d-xxl-block">Cramer, Sarrus e escalonamento passo a passo</small>
+  </div>
+  <div class="ferramenta">
+    <label class="ferramenta-rotulo" for="{{ form.metodo.id_for_label }}">Método</label>
+    {{ form.metodo }}
+  </div>
+  <div class="ferramenta" role="group" aria-label="Exemplos">
+    <span class="ferramenta-rotulo">Exemplos</span>
+    {% for ex in exemplos %}<a class="btn btn-outline-secondary btn-sm" href="{% url 'sistemas:resolver' %}?{{ ex.query }}" title="Exemplo: sistema {{ ex.rotulo }}">{{ ex.rotulo }}</a>{% endfor %}
+  </div>
+  {% if trace %}
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="copiar-link" data-copiado="Copiado" title="Copiar link" aria-label="Copiar link"><i class="bi bi-link-45deg" aria-hidden="true"></i> <span class="d-lg-none d-xxl-inline">Copiar link</span></button>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if trace %}
+<nav class="quadrantes-nav d-xl-none" aria-label="Quadrantes">
+  <a href="#q-entrada" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil" aria-hidden="true"></i> Sistema</a>
+  <a href="#q-cena" class="btn btn-sm btn-outline-secondary"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Matriz</a>
+  <a href="#q-conta" class="btn btn-sm btn-outline-secondary"><i class="bi bi-calculator" aria-hidden="true"></i> Conta</a>
+</nav>
+{% endif %}
+<div class="row g-3 resolver">
+
+  {# 1º quadrante: o sistema #}
+  <div class="col-xl-3 col-lg-4 quadrante" id="q-entrada">
+    <form method="get" action="{% url 'sistemas:resolver' %}" class="card p-3 form-sistema" id="form-sistema" novalidate>
+      <div class="btn-group w-100 mb-3" role="group" aria-label="Como informar o sistema">
+        <input type="radio" class="btn-check" name="entrada" id="entrada-equacoes" value="equacoes" autocomplete="off"{% if entrada == 'equacoes' %} checked{% endif %}>
+        <label class="btn btn-outline-secondary" for="entrada-equacoes"><i class="bi bi-pencil" aria-hidden="true"></i> Equações</label>
+        <input type="radio" class="btn-check" name="entrada" id="entrada-matriz" value="matriz" autocomplete="off"{% if entrada == 'matriz' %} checked{% endif %}>
+        <label class="btn btn-outline-secondary" for="entrada-matriz"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Matriz</label>
+      </div>
+
+      {% if form.non_field_errors %}<div class="alert alert-danger py-2" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% if form.metodo.errors %}<p class="erro-campo">Método: {{ form.metodo.errors|join:" " }}</p>{% endif %}
+
+      <div class="bloco-equacoes">
+        <label class="form-label" for="{{ form.equacoes.id_for_label }}">Sistema (uma equação por linha)</label>
+        {{ form.equacoes }}
+        {% if form.equacoes.errors %}<p class="erro-campo">{{ form.equacoes.errors|join:" " }}</p>{% endif %}
+        <p class="small texto-suave mt-2 mb-0">Use x, y e z. Exemplo: <span class="font-monospace">3x − 2y + z = −2</span>. A matriz é montada a partir das equações.</p>
+      </div>
+
+      <div class="bloco-matriz">
+        <div class="mb-2">
+          <label class="form-label" for="{{ form.n.id_for_label }}">{{ form.n.label }}</label>
+          {{ form.n }}
+        </div>
+        <fieldset class="grade-coeficientes ordem-{{ ordem }}" id="grade">
+          <legend class="form-label">Matriz [A | K]</legend>
+          <div class="grade-cab" aria-hidden="true">
+            <span></span><span class="col-x-texto">x</span><span class="col-y-texto">y</span><span class="col-z-texto so-3">z</span><span></span><span class="col-k-texto">K</span>
+          </div>
+          {% for i, campos, k in grade %}
+          <div class="grade-linha{% if i == 3 %} so-3{% endif %}">
+            <span class="rotulo-linha">L{{ i }}</span>
+            {% for campo in campos %}
+              <span class="grade-celula{% if forloop.counter == 3 %} so-3{% endif %}">{{ campo }}</span>
+            {% endfor %}
+            <span class="igual" aria-hidden="true">=</span>
+            <span class="grade-celula">{{ k }}</span>
+          </div>
+          {% endfor %}
+          {% for i, campos, k in grade %}{% for campo in campos %}{% if campo.errors %}<p class="erro-campo">{{ campo.label }}: {{ campo.errors|join:" " }}</p>{% endif %}{% endfor %}{% if k.errors %}<p class="erro-campo">{{ k.label }}: {{ k.errors|join:" " }}</p>{% endif %}{% endfor %}
+        </fieldset>
+        <div class="sistema-informado mt-3">
+          <h2 class="h6 mb-1">Sistema informado</h2>
+          <ul class="lista-equacoes" id="sistema-informado" aria-live="polite">
+            {% for eq in equacoes %}<li><span class="texto-suave">L{{ forloop.counter }}:</span> {{ eq }}</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <p class="small texto-suave mt-3 mb-3">Aceita inteiros, decimais (31,5) e frações (3/4). Campo vazio vale 0.</p>
+      <button type="submit" class="btn btn-primary w-100 mt-auto btn-resolver"><i class="bi bi-play-fill" aria-hidden="true"></i> Resolver</button>
+    </form>
+  </div>
+
+  {% if trace %}
+  {# 2º quadrante: matriz animada, controles fixos no topo #}
+  <div class="col-xl-5 col-lg-8 quadrante" id="q-cena">
+    <section class="card p-3 cena" id="cena" aria-labelledby="cena-titulo" hidden>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <nav class="cena-secoes" id="cena-secoes" aria-label="Seções da resolução"></nav>
+        <span class="small texto-suave" id="cena-contador"></span>
+      </div>
+      <div class="progress cena-progresso my-2" role="progressbar" aria-label="Progresso" id="cena-progresso"><div class="progress-bar" id="cena-barra"></div></div>
+      <div class="cena-controles" role="group" aria-label="Controles do passo a passo (teclado: ← → e espaço)">
+        <button type="button" class="btn btn-outline-secondary" id="btn-inicio" aria-label="Primeiro passo" title="Primeiro passo"><i class="bi bi-skip-start-fill" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="btn-anterior" aria-label="Passo anterior" title="Passo anterior (←)"><i class="bi bi-chevron-left" aria-hidden="true"></i> <span class="d-none d-sm-inline">Anterior</span></button>
+        <button type="button" class="btn btn-outline-secondary" id="btn-tocar" aria-label="Reproduzir automaticamente" title="Reproduzir ou pausar (espaço)"><i class="bi bi-play-fill" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-primary" id="btn-proximo" aria-label="Próximo passo" title="Próximo passo (→)"><span class="d-none d-sm-inline">Próximo</span> <i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="btn-fim" aria-label="Último passo" title="Último passo"><i class="bi bi-skip-end-fill" aria-hidden="true"></i></button>
+      </div>
+      <h2 class="h5 cena-titulo mt-3 mb-2" id="cena-titulo"></h2>
+      <div class="cena-palco" id="cena-palco">
+        <div class="matriz-envoltorio" id="cena-envoltorio">
+          <div class="matriz" id="cena-matriz"></div>
+          <div class="matriz-produtos" id="cena-produtos" hidden></div>
+          <svg class="diagonais" id="cena-diagonais" aria-hidden="true"></svg>
+        </div>
+        <div class="cena-painel" id="cena-painel"></div>
+      </div>
+      <div class="cena-legenda">{% include "sistemas/_legenda.html" %}</div>
+    </section>
+  </div>
+
+  {# 3º quadrante: a conta do passo e a resolução completa, por método #}
+  <div class="col-xl-4 col-lg-12 quadrante" id="q-conta">
+    <section class="card p-3 conta" aria-labelledby="conta-titulo">
+      <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+        <h2 class="h6 texto-suave mb-0" id="conta-titulo">Conta</h2>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'sistemas:solucao_txt' %}?{{ query }}" download><i class="bi bi-download" aria-hidden="true"></i> Salvar .txt</a>
+      </div>
+      <div class="conta-passo" id="conta" hidden>
+        <div class="cena-destaque" id="cena-destaque"></div>
+        <p class="cena-texto" id="cena-texto" aria-live="polite"></p>
+        <ul class="cena-itens" id="cena-itens"></ul>
+      </div>
+      <div class="resolucao-metodos">
+        <h3 class="h6 mt-2 mb-2">Resolução por método</h3>
+        {% for grupo in secoes %}
+        <details class="metodo" data-secao="{{ grupo.chave }}">
+          <summary>{{ grupo.nome }} <span class="texto-suave small">({{ grupo.passos|length }} passo{{ grupo.passos|length|pluralize }})</span></summary>
+          {% for passo in grupo.passos %}
+          <div class="metodo-passo" data-passo="{{ passo.id }}">
+            <p class="metodo-passo-titulo"><span class="texto-suave">{{ passo.id }}.</span> {{ passo.titulo }}</p>
+            {% if passo.matriz %}<pre class="metodo-matriz">{{ passo.matriz }}</pre>{% endif %}
+            <ul class="metodo-linhas">{% for linha in passo.linhas %}<li>{{ linha }}</li>{% endfor %}</ul>
+          </div>
+          {% endfor %}
+        </details>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+  {{ trace|json_script:"trace-data" }}
+  <noscript><p class="mt-2">O passo a passo animado precisa de JavaScript. A resolução completa está no quadrante Conta e no arquivo .txt.</p></noscript>
+  {% else %}
+  <div class="col-xl-9 col-lg-8 quadrante">
+    <div class="card p-4">
+      <h2 class="h5">Corrija o sistema para resolver</h2>
+      <p class="texto-suave mb-3">Veja as mensagens no formulário. Cada passo aparece aqui, com x, y, z e K sempre nas mesmas cores.</p>
+      {% include "sistemas/_legenda.html" %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'sistemas/js/formulario.js' %}" defer></script>
+{% if trace %}<script src="{% static 'sistemas/js/passo-a-passo.js' %}" defer></script>{% endif %}
+{% endblock %}

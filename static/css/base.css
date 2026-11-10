@@ -1,0 +1,104 @@
+/* Estrutura estática que consome os tokens (PROJECT_SPEC Anexo A.4).
+   Os valores de :root são o fallback; /tema.css redefine --tema-*, --sem-* e --mat-*. */
+:root {
+  --tema-fundo: #F8FAFC;  --tema-destaque: #1E3A8A;  --tema-escrita: #0F172A;
+  --tema-destaque-rgb: 30, 58, 138;
+  --tema-superficie: #FFFFFF;  --tema-borda: #E2E8F0;  --tema-escrita-suave: #475569;
+  --tema-destaque-hover: #1A3278;  --tema-sobre-destaque: #FFFFFF;
+  --tema-navbar: #1E3A8A;  --tema-superficie-2: #F1F5F9;
+
+  --sem-sucesso: #15803D;  --sem-sucesso-hover: #166534;
+  --sem-perigo: #B91C1C;   --sem-perigo-hover: #991B1B;
+  --sem-alerta: #B45309;   --sem-sobre: #FFFFFF;
+
+  --mat-x: #0067A3; --mat-x-rgb: 0, 103, 163;
+  --mat-y: #007A5A; --mat-y-rgb: 0, 122, 90;
+  --mat-z: #B34700; --mat-z-rgb: 179, 71, 0;
+  --mat-k: #6E5F00; --mat-k-rgb: 110, 95, 0;
+  --mat-pivo: #9C3D74; --mat-pivo-rgb: 156, 61, 116;
+
+  --raio: .375rem;  --sombra: 0 1px 3px rgba(0, 0, 0, .06);  --espaco: 1;  --duracao: .15s;
+
+  --bs-primary: var(--tema-destaque);  --bs-primary-rgb: var(--tema-destaque-rgb);
+  --bs-secondary: var(--tema-escrita-suave);
+  --bs-success: var(--sem-sucesso);  --bs-danger: var(--sem-perigo);  --bs-warning: var(--sem-alerta);
+  --bs-body-bg: var(--tema-fundo);   --bs-body-color: var(--tema-escrita);
+  --bs-border-color: var(--tema-borda);
+  --bs-link-color: var(--tema-destaque);  --bs-link-color-rgb: var(--tema-destaque-rgb);
+  --bs-link-hover-color: var(--tema-destaque-hover);
+  --bs-border-radius: var(--raio);
+  --bs-emphasis-color: var(--tema-escrita);
+  --bs-secondary-color: var(--tema-escrita-suave);
+}
+
+[data-raio="reto"] { --raio: 0; }          [data-raio="suave"] { --raio: .375rem; }
+[data-raio="arredondado"] { --raio: 1rem; } [data-raio="pilula"] { --raio: 2rem; }
+[data-sombra="nenhuma"] { --sombra: none; }
+[data-sombra="suave"] { --sombra: 0 1px 3px rgba(0, 0, 0, .08); }
+[data-sombra="marcada"] { --sombra: 0 6px 18px rgba(0, 0, 0, .18); }
+[data-densidade="compacta"] { --espaco: .75; }
+[data-densidade="confortavel"] { --espaco: 1; }
+[data-densidade="ampla"] { --espaco: 1.35; }
+[data-movimento="nenhum"] { --duracao: 0s; }
+[data-movimento="discreto"] { --duracao: .15s; }
+[data-movimento="expressivo"] { --duracao: .35s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; scroll-behavior: auto !important; }
+}
+
+.btn-primary {
+  --bs-btn-color: var(--tema-sobre-destaque);  --bs-btn-hover-color: var(--tema-sobre-destaque);
+  --bs-btn-active-color: var(--tema-sobre-destaque);
+  --bs-btn-bg: var(--tema-destaque);  --bs-btn-border-color: var(--tema-destaque);
+  --bs-btn-hover-bg: var(--tema-destaque-hover);  --bs-btn-hover-border-color: var(--tema-destaque-hover);
+  --bs-btn-active-bg: var(--tema-destaque-hover); --bs-btn-active-border-color: var(--tema-destaque-hover);
+  --bs-btn-disabled-bg: var(--tema-destaque);     --bs-btn-disabled-border-color: var(--tema-destaque);
+}
+.btn-outline-secondary {
+  --bs-btn-color: var(--tema-escrita);  --bs-btn-border-color: var(--tema-borda);
+  --bs-btn-hover-color: var(--tema-escrita);  --bs-btn-hover-bg: var(--tema-superficie-2);
+  --bs-btn-hover-border-color: var(--tema-escrita-suave);
+  --bs-btn-active-color: var(--tema-escrita);  --bs-btn-active-bg: var(--tema-superficie-2);
+  --bs-btn-active-border-color: var(--tema-escrita-suave);
+}
+.btn-success {
+  --bs-btn-color: var(--sem-sobre);  --bs-btn-hover-color: var(--sem-sobre);
+  --bs-btn-bg: var(--sem-sucesso);  --bs-btn-border-color: var(--sem-sucesso);
+  --bs-btn-hover-bg: var(--sem-sucesso-hover);  --bs-btn-hover-border-color: var(--sem-sucesso-hover);
+}
+.btn-danger {
+  --bs-btn-color: var(--sem-sobre);  --bs-btn-hover-color: var(--sem-sobre);
+  --bs-btn-bg: var(--sem-perigo);  --bs-btn-border-color: var(--sem-perigo);
+  --bs-btn-hover-bg: var(--sem-perigo-hover);  --bs-btn-hover-border-color: var(--sem-perigo-hover);
+}
+
+body { min-height: 100vh; display: flex; flex-direction: column; background: var(--tema-fundo); color: var(--tema-escrita); }
+.app-navbar { background: var(--tema-navbar); border-bottom: 1px solid var(--tema-borda); }
+.btn-login { background: var(--tema-destaque); color: var(--tema-sobre-destaque); border: 1px solid var(--tema-destaque); font-weight: 600; }
+.btn-login:hover { background: var(--tema-destaque-hover); color: var(--tema-sobre-destaque); }
+.app-toolbar { background: var(--tema-superficie); border-bottom: 1px solid var(--tema-borda);
+               padding: calc(.75rem * var(--espaco)) 0; margin-bottom: calc(1.5rem * var(--espaco)); }
+.btn { font-weight: 500; display: inline-flex; align-items: center; gap: .375rem;
+       transition: background-color var(--duracao), box-shadow var(--duracao), transform var(--duracao); }
+.card { background: var(--tema-superficie); border: 1px solid var(--tema-borda);
+        border-radius: var(--raio); box-shadow: var(--sombra); color: var(--tema-escrita); }
+.form-label { font-weight: 600; font-size: .875rem; }
+.form-control, .form-select { background-color: var(--tema-fundo); color: var(--tema-escrita); border-color: var(--tema-borda); }
+.form-control:focus, .form-select:focus { background-color: var(--tema-fundo); color: var(--tema-escrita);
+        border-color: var(--tema-destaque); box-shadow: 0 0 0 .25rem rgba(var(--tema-destaque-rgb), .25); }
+:focus-visible { outline: 2px solid var(--tema-destaque); outline-offset: 2px; }
+footer { margin-top: auto; border-top: 1px solid var(--tema-borda); background: var(--tema-superficie); }
+.texto-suave { color: var(--tema-escrita-suave); }
+.superficie-2 { background: var(--tema-superficie-2); }
+
+/* Marca: três barras nas cores de x, y e z dentro de colchetes */
+.marca { display: inline-flex; gap: 3px; align-items: center; padding: 0 5px; height: 1.4rem;
+         border-left: 2px solid currentColor; border-right: 2px solid currentColor; border-radius: 3px; }
+.marca span { width: 4px; height: 70%; border-radius: 2px; }
+.marca-x { background: var(--mat-x); } .marca-y { background: var(--mat-y); } .marca-z { background: var(--mat-z); }
+
+/* Landing */
+.hero { padding: calc(3rem * var(--espaco)) 0 calc(2rem * var(--espaco)); }
+.hero h1 { font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 700; }
+.icone-bloco { font-size: 1.6rem; color: var(--tema-destaque); }

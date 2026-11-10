@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Acesso negado — Álgebra em Cena{% endblock %}
+{% block page_title %}Acesso negado{% endblock %}
+{% block content %}
+<div class="card p-4">
+  <p class="lead">Você não tem permissão para esta área.</p>
+  <p class="texto-suave">Se precisa de acesso, peça ao administrador.</p>
+  <a class="btn btn-outline-secondary" href="{% url 'site:landing' %}">Voltar ao início</a>
+</div>
+{% endblock %}

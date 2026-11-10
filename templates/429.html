@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Muitas requisições — Álgebra em Cena{% endblock %}
+{% block page_title %}Muitas requisições{% endblock %}
+{% block content %}
+<div class="card p-4">
+  <p class="lead">Foram muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.</p>
+  <a class="btn btn-outline-secondary" href="{% url 'site:landing' %}">Voltar ao início</a>
+</div>
+{% endblock %}

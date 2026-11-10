@@ -1,0 +1,18 @@
+# Ambiente e segredos (Doc ① §4.7)
+.venv/
+.venv-render/
+.env
+# Python
+*.pyc
+__pycache__/
+# Logs e sistema
+*.log
+.DS_Store
+*:Zone.Identifier
+# Banco local e arquivos gerados
+db.sqlite3
+media/
+staticfiles/
+# Subprojeto Remotion (EXC-001)
+node_modules/
+render/remotion/out/
