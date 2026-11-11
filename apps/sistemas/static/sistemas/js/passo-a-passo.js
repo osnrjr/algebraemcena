@@ -325,7 +325,7 @@
       painel(criar('span', 'conjunto', p.conjunto));
       if (formal) formal.formas.slice(1).forEach((f) => painel(criar('span', 'conjunto conjunto-alt', 'ou ' + f)));
       p.itens.forEach((it) => item(it.texto));
-      if (formal) item(formal.nota, 'nota');
+      if (formal && formal.nota) item(formal.nota, 'nota');
     },
 
     async verificacao(p, animar) {

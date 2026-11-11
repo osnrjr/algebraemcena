@@ -277,7 +277,7 @@ class ApresentacaoFormalTests(SimpleTestCase):
         self.assertEqual(formal['formas'], ['S = {(−1, 2)}'])
         self.assertEqual(formal['quantidade'], 'Solução única')
         self.assertIn('único par ordenado (x, y): x = −1 e y = 2', formal['leitura'])
-        self.assertIn('Não é preciso escrever x ∈ ℝ e y ∈ ℝ', formal['nota'])
+        self.assertIsNone(formal['nota'])
         self.assertNotIn('∈', formal['formas'][0])
         self.assertEqual(passo['titulo'], 'Conjunto solução: solução única')
         self.assertEqual(trace['resultado']['formal'], formal)

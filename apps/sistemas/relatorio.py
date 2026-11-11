@@ -89,7 +89,8 @@ def linhas_do_passo(passo):
             return [passo['conjunto']] + [item['texto'] for item in passo['itens']]
         return ([formal['formas'][0]] + [f'ou {f}' for f in formal['formas'][1:]]
                 + [formal['leitura']] + [item['texto'] for item in passo['itens']]
-                + [f'Nota: {formal["nota"]}', 'Como se escreve o conjunto solução:']
+                + ([f'Nota: {formal["nota"]}'] if formal.get('nota') else [])
+                + ['Como se escreve o conjunto solução:']
                 + [f'{"►" if r["atual"] else "·"} {r["classe"]} — {r["quantidade"]}: {r["formato"]}'
                    for r in formal['resumo']])
     return [passo['texto']]

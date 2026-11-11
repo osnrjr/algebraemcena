@@ -253,3 +253,9 @@ class ApresentacaoFormalViewTests(TestCase):
     def test_pagina_mostra_a_leitura_no_bloco_resultado(self):
         r = self.client.get(reverse('sistemas:resolver'))
         self.assertContains(r, 'O conjunto solução tem um único par ordenado (x, y): x = −1 e y = 2.')
+
+    def test_spd_sem_nota_no_txt(self):
+        txt = self.client.get(reverse('sistemas:solucao_txt')).content.decode()
+        self.assertIn('S = {(−1, 2)}', txt)
+        self.assertNotIn('Nota:', txt)
+        self.assertNotIn('Não é preciso escrever', txt)

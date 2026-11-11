@@ -150,8 +150,7 @@ def _formal_da_classe(classe, n, rotulos, expressoes, parametros, conjunto, tupl
             'quantidade': 'Solução única',
             'formas': [conjunto],
             'leitura': f'O conjunto solução tem um único {tupla} {incognitas}: {valores}.',
-            'nota': f'Não é preciso escrever {_lista([r + " ∈ ℝ" for r in rotulos])}: '
-                    'os valores já estão definidos explicitamente.',
+            'nota': None,                       # SPD dispensa nota: os valores já dizem tudo
         }
     if classe == 'SPI':
         livres = [p['variavel'] for p in parametros]

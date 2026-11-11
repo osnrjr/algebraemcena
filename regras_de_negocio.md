@@ -204,7 +204,8 @@ O passo final "Conjunto solução" (animação, quadrante Conta e .txt) apresent
 | SI | Nenhuma | conjunto vazio | `S = ∅` ou `S = { }` — **nunca** `S = {∅}` |
 
 - Além da forma, o passo traz a **leitura** ("…formado pelos pares ordenados (1 − y, y), tal que y pertence
-  aos reais"; a barra "|" ou ";" se lê "tal que"), uma **nota** própria da classe e, no .txt e no bloco
+  aos reais"; a barra "|" ou ";" se lê "tal que"), uma **nota** no SPI (variável livre, "tal que") e no SI
+  (o alerta sobre `S = {∅}`) — o SPD não tem nota — e, no .txt e no bloco
   Resultado, o **resumo comparativo** das três classes com a do sistema marcada (►).
 - Par ordenado (2×2) ou terno ordenado (3×3). No SPI, a variável livre aparece como `z ∈ ℝ (variável livre)`
   e a verificação usa a solução particular com as livres iguais a 0.
