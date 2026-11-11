@@ -292,7 +292,8 @@ depois de resolver:
   (1 linha no 2×2, 2 no 3×3) e a parte de cima nunca encolhe durante a resolução.
 - A cada passo, só a metade de baixo se move, e volta ao topo para mostrar a explicação do passo.
   Nenhum passo muda o foco nem arrasta a página para outro quadrante.
-- Sem faixa extra de atalhos: o botão **Editar**, no início da linha das seções (Editar, Sistema, Cramer…), abre o formulário em tela cheia e o
+- Sem faixa extra de atalhos: o botão **Editar**, no início da linha das seções (Editar, Sistema, Cramer…), pausa a
+  resolução, libera os campos para uma nova consulta e abre o formulário em tela cheia; o
   botão **◫** ao lado de Resolver/Parar volta ao passo a passo (oculto depois de Parar).
 - No celular (< 992 px), **Método** e **Exemplos** ficam dentro do 1º quadrante (no desktop seguem
   na barra superior); a barra superior fica mais baixa e os textos da resolução, mais leves.

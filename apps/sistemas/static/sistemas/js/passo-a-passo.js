@@ -566,6 +566,10 @@
   atalhos.forEach((a) => a.addEventListener('click', (ev) => {
     if (!corpo.classList.contains('modo-dividido')) return;
     ev.preventDefault();
+    // "Editar": pausa a resolução e libera os campos (como Parar) antes de abrir o formulário.
+    if (a.dataset.vista === 'sistema' && typeof window.__pararProcessamento === 'function') {
+      window.__pararProcessamento();
+    }
     mostrarVista(a.dataset.vista);
   }));
   // Parar a resolução leva ao formulário; resolver de novo volta ao passo a passo.
