@@ -535,16 +535,32 @@
   // Lápis no cabeçalho da cena: editar o sistema; botão no formulário: voltar ao passo a passo.
   const atalhos = document.querySelectorAll('[data-vista]');
 
+  const celularEstreito = window.matchMedia('(max-width: 991.98px)');
   function mostrarVista(vista) {
     corpo.classList.toggle('vista-sistema', vista === 'sistema');
+    // Celular: a edição abre em "Equações" (o texto já vem com o sistema atual). Sem disparar
+    // "change", para não limpar a resolução que está no passo a passo.
+    if (vista === 'sistema' && celularEstreito.matches) {
+      const equacoes = document.getElementById('entrada-equacoes');
+      if (equacoes) equacoes.checked = true;
+    }
     window.scrollTo(0, 0);
   }
 
+  // Chegada sem sistema no link (vinda da página inicial ou do menu): no celular, começa na
+  // edição (1º quadrante). Com sistema no link (Resolver, Avançar, exemplo): no passo a passo.
+  const chegouSemSistema = !window.location.search;
+  let primeiraVez = true;
   function aplicarDivisao() {
     const dividir = telaDividida.matches;
     corpo.classList.toggle('modo-dividido', dividir);
-    if (dividir) mostrarVista(corpo.classList.contains('vista-sistema') ? 'sistema' : 'passos');
-    else corpo.classList.remove('vista-sistema');
+    if (dividir) {
+      const naEdicao = corpo.classList.contains('vista-sistema') || (primeiraVez && chegouSemSistema && celularEstreito.matches);
+      mostrarVista(naEdicao ? 'sistema' : 'passos');
+    } else {
+      corpo.classList.remove('vista-sistema');
+    }
+    primeiraVez = false;
   }
 
   atalhos.forEach((a) => a.addEventListener('click', (ev) => {

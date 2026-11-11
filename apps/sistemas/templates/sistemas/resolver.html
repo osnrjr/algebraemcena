@@ -51,8 +51,11 @@
       <div class="ferramentas-q1 mb-2" id="ferramentas-q1" hidden></div>
 
       <div class="d-flex gap-2 w-100 mb-2 acoes-resolver">
+        {% comment %}Celular: Avançar = passo a passo pelo usuário; Resolver = reprodução automática (RN-028).
+           Resolver vem antes no HTML (é o botão do Enter); no celular o CSS põe Avançar à frente.{% endcomment %}
         <button type="submit" class="btn btn-primary flex-grow-1 btn-resolver" id="btn-resolver"><i class="bi bi-play-fill" aria-hidden="true"></i> <span class="rotulo-resolver">Resolver</span></button>
-        <button type="button" class="btn btn-outline-danger btn-parar{% if not trace %} d-none{% endif %}" id="btn-parar" title="Parar processamento e habilitar campos"><i class="bi bi-stop-fill" aria-hidden="true"></i> Parar</button>
+        <button type="submit" class="btn btn-avancar d-lg-none" id="btn-avancar" title="Passo a passo: você avança cada passo"><i class="bi bi-chevron-right" aria-hidden="true"></i> Avançar</button>
+        <button type="button" class="btn btn-outline-danger btn-parar{% if not trace %} d-none{% endif %}" id="btn-parar" title="Parar processamento e habilitar campos" aria-label="Parar"><i class="bi bi-stop-fill" aria-hidden="true"></i> <span class="rotulo-parar">Parar</span></button>
         {% if trace %}<button type="button" class="btn btn-outline-secondary so-dividido" id="btn-ver-passos" data-vista="passos" title="Voltar ao passo a passo" aria-label="Voltar ao passo a passo"><i class="bi bi-layout-split" aria-hidden="true"></i></button>{% endif %}
       </div>
 

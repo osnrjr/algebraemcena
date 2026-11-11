@@ -257,8 +257,29 @@
     });
   }
 
+  /* Celular: "Avançar" resolve e abre o passo a passo PARADO; quem avança é o usuário (RN-028).
+     Mesmo sistema já resolvido: só volta ao passo a passo, sem tocar. Sistema alterado: envia sem autoplay. */
+  const btnAvancar = document.getElementById('btn-avancar');
+  if (btnAvancar) {
+    btnAvancar.addEventListener('click', (ev) => {
+      const cenaAtiva = Boolean(cena && !cena.hidden);
+      if (!formModificado && cenaAtiva) {
+        ev.preventDefault();
+        if (btnTocar && btnTocar.querySelector('.bi-pause-fill')) btnTocar.click();   // pausa se estiver tocando
+        travarPrimeiroQuadrante(true);
+        if (btnParar) btnParar.classList.remove('d-none');
+        if (typeof window.__mostrarPassoAPasso === 'function') window.__mostrarPassoAPasso();
+      }
+    });
+  }
+
   if (form) {
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', (ev) => {
+      if (ev.submitter && ev.submitter === btnAvancar) {
+        const auto = form.querySelector('input[name="autoplay"]');
+        if (auto) auto.remove();
+        return;
+      }
       ativarAutoplay();
     });
   }
@@ -289,6 +310,11 @@
       else lugaresBarra[i].after(peca);
     });
     vagaQ1.hidden = !celular.matches;
+    // A dica do "Resolver" só no celular, onde ele convive com o "Avançar".
+    if (btnResolver) {
+      if (celular.matches) btnResolver.title = 'Reprodução automática de todos os passos';
+      else btnResolver.removeAttribute('title');
+    }
   }
   celular.addEventListener('change', posicionarFerramentas);
   posicionarFerramentas();

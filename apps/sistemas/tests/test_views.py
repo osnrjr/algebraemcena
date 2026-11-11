@@ -80,6 +80,13 @@ class ResolverViewTests(TestCase):
         self.assertContains(r, 'name="a33" value="1"')
         self.assertContains(r, 'class="grade-coeficientes ordem-3"')
 
+    def test_celular_tem_avancar_passo_a_passo_e_resolver_automatico(self):
+        """RN-028: no celular, Avançar (passo a passo) e Resolver (automático); Resolver segue como botão do Enter."""
+        html = self.client.get(self.url).content.decode()
+        self.assertIn('id="btn-avancar"', html)
+        self.assertIn('class="btn btn-avancar d-lg-none"', html)              # só no celular
+        self.assertLess(html.index('id="btn-resolver"'), html.index('id="btn-avancar"'))
+
     def test_incognitas_com_outras_letras(self):
         """RN-022: a, b, c funcionam como x, y, z; a grade, o link e o .txt seguem as letras."""
         dados = {'entrada': 'equacoes', 'metodo': 'ambos',

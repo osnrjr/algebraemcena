@@ -295,6 +295,14 @@ depois de resolver:
   botão **◫** ao lado de Resolver/Parar volta ao passo a passo (oculto depois de Parar).
 - No celular (< 992 px), **Método** e **Exemplos** ficam dentro do 1º quadrante (no desktop seguem
   na barra superior); a barra superior fica mais baixa e os textos da resolução, mais leves.
+- Celular (< 992 px), tela de edição:
+  - abre sempre em **Equações** (o texto já traz o sistema atual; a resolução não é apagada);
+  - quem chega sem sistema no link (página inicial, menu) cai **nela**; com sistema no link
+    (Resolver, Avançar, exemplo), cai no passo a passo;
+  - botões, nesta ordem: **Avançar** (contorno, ›) — passo a passo, parado, o usuário avança;
+    **Resolver** (cheio, ▶) — reprodução automática; **■** Parar; **◫** voltar ao passo a passo.
+    Só dicas (tooltip), sem textos explicativos. No desktop não há Avançar, e Enter continua
+    acionando o Resolver.
 - **Parar** leva ao 1º quadrante, com os campos liberados para uma nova escolha; **Resolver** ou
   **Continuar** volta à tela dividida.
 - Na metade de cima a matriz é compacta e a legenda de cores sai (ela está em "Como funciona").
