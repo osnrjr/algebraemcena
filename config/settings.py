@@ -24,8 +24,10 @@ CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 # Transporte (HTTPS)
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=not DEBUG)
-SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=0 if DEBUG else 3600)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False)
+# HSTS de 1 ano com subdomínios em produção (PROJECT_SPEC §10.1: elevado após estabilizar).
+# Preload fica desligado: exige domínio próprio (não vale para *.pythonanywhere.com).
+SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=0 if DEBUG else 31536000)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=not DEBUG)
 SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=False)
 
 # Cookies, sessão e CSRF
@@ -54,6 +56,18 @@ CDN = 'https://cdn.jsdelivr.net'
 YOUTUBE_API = 'https://www.youtube.com'
 YOUTUBE_PLAYER = 'https://www.youtube-nocookie.com'
 VIDEO_APRESENTACAO_ID = env('VIDEO_APRESENTACAO_ID', default='7zyystx4zNU')
+# Permissions-Policy (apps.core.middleware): tudo bloqueado, exceto o que a página usa. O player do
+# YouTube precisa de autoplay (play após o clique), tela cheia, mídia protegida e picture-in-picture.
+_SELF_E_PLAYER = ['self', YOUTUBE_PLAYER]
+PERMISSIONS_POLICY = {
+    'accelerometer': [], 'autoplay': _SELF_E_PLAYER, 'bluetooth': [], 'camera': [],
+    'clipboard-write': ['self'],                 # botão "Copiar link"
+    'display-capture': [], 'encrypted-media': _SELF_E_PLAYER, 'fullscreen': _SELF_E_PLAYER,
+    'geolocation': [], 'gyroscope': [], 'hid': [], 'idle-detection': [], 'magnetometer': [],
+    'microphone': [], 'midi': [], 'payment': [], 'picture-in-picture': _SELF_E_PLAYER,
+    'publickey-credentials-get': [], 'screen-wake-lock': [], 'serial': [], 'usb': [],
+    'web-share': [], 'xr-spatial-tracking': [],
+}
 SECURE_CSP = {
     'default-src': [CSP.SELF],
     'script-src': [CSP.SELF, CSP.NONCE, CDN, YOUTUBE_API],
@@ -84,6 +98,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'apps.core.middleware.PermissionsPolicyMiddleware',
     'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -649,7 +649,8 @@ Nenhuma integração externa nem webhook na v1. O worker Manim é processo local
 | :--- | :--- | :--- |
 | Hosts adicionais na CSP | Somente a CDN em allowlist | Nenhum. Bundle do Remotion servido de `'self'`. Acrescentar a diretiva `media-src 'self'` para os MP4. |
 | `frame-ancestors` / `X_FRAME_OPTIONS` | `'none'` / `DENY` | **[PADRÃO]** |
-| HSTS (`SECURE_HSTS_SECONDS`) | 3600, elevando até 31536000 | **[PADRÃO]** (elevar após estabilizar produção) |
+| HSTS (`SECURE_HSTS_SECONDS`) | 3600, elevando até 31536000 | **31536000 (1 ano) com `includeSubDomains`** em produção (elevado em 11/11/2026); *preload* desligado — exige domínio próprio, não vale para `*.pythonanywhere.com` |
+| `Permissions-Policy` | — (o Django não envia) | `apps.core.middleware` + `settings.PERMISSIONS_POLICY`: todos os recursos bloqueados, exceto `autoplay`, `fullscreen`, `encrypted-media` e `picture-in-picture` para a página e o player `youtube-nocookie`, e `clipboard-write` para a página (Copiar link) |
 | Proxy reverso e cabeçalho de IP real | Nenhum (não confiar) | **[CONFIRMAR]** conforme hospedagem |
 | Cache do rate limit | Redis/Memcached em produção | **[CONFIRMAR]** conforme hospedagem |
 | Rate limit: login | 5/min por IP; 5 falhas → 15 min | **[PADRÃO]** |

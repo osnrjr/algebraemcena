@@ -244,12 +244,15 @@ Segue o baseline do `AGENT_INSTRUCTIONS_DJANGO.md` (Doc ①):
 
 - CSP imposta, sem `'unsafe-inline'` nem `'unsafe-eval'`; nenhum estilo ou script inline; `frame-ancestors 'none'`.
 - Bootstrap por CDN com versão fixa e SRI.
-- Cookies `Secure`/`HttpOnly`/`SameSite`, HTTPS e HSTS fora do desenvolvimento.
+- Cookies `Secure`/`HttpOnly`/`SameSite`, HTTPS e HSTS de 1 ano com subdomínios fora do desenvolvimento.
+- Cabeçalhos para nota A+ em securityheaders.com: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: same-origin`, HSTS e `Permissions-Policy` (recursos do navegador bloqueados, exceto o
+  necessário ao player do vídeo e ao "Copiar link"; ver `apps/core/middleware.py`).
 - Senhas com Argon2id; usuário com chave UUID; Admin em URL não padrão.
 - Rate limit na aplicação: resolver e `.txt`/JSON 30/min por IP, login 5/min, recuperação de senha 3/h.
 - Resolver *stateless*: o sistema digitado não é armazenado (LGPD mínima).
 
-`python manage.py check --deploy` com `DEBUG=False` deixa apenas os avisos de HSTS para subdomínios e *preload*, que dependem do domínio de produção.
+`python manage.py check --deploy` com `DEBUG=False` deixa apenas o aviso de *preload* do HSTS, que exige domínio próprio.
 
 ---
 
