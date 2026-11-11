@@ -389,6 +389,8 @@ body.modo-dividido .app-navbar .navbar-collapse { max-height: 70dvh; overflow-y:
   .ferramentas-q1 .ferramenta-rotulo { flex: none; width: 4.6rem; font-size: .8rem; color: var(--tema-escrita-suave); }
   .ferramentas-q1 .form-select-sm { flex: 1; width: auto; }
   .ferramentas-q1 .btn { flex: 1; justify-content: center; }
+  .ferramentas-q1 .btn.exemplo-ativo { background: var(--tema-destaque); border-color: var(--tema-destaque);
+    color: var(--tema-sobre-destaque); }
   /* Avançar (contorno, passo a passo) | Resolver (cheio, automático) | ■ | ◫ */
   .acoes-resolver { display: grid !important; grid-template-columns: 1fr 1fr auto auto; }
   .acoes-resolver .btn { justify-content: center; }
@@ -461,3 +463,12 @@ body.modo-dividido .app-navbar .navbar-collapse { max-height: 70dvh; overflow-y:
   cursor: not-allowed;
 }
 .cena-placeholder { min-height: 18rem; justify-content: center; }
+
+/* Exemplo inserido no formulário (celular): pulso de destaque no campo preenchido (RN-028) */
+@keyframes campo-inserido {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--tema-destaque-rgb), .85); background-color: rgba(var(--tema-destaque-rgb), .3); }
+  70%  { box-shadow: 0 0 0 .55rem rgba(var(--tema-destaque-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--tema-destaque-rgb), 0); background-color: var(--tema-fundo); }
+}
+.campo-inserido { border-color: var(--tema-destaque) !important; outline: 2px solid var(--tema-destaque); outline-offset: 1px;
+  animation: campo-inserido 1.4s ease-out; }

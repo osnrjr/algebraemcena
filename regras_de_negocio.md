@@ -304,6 +304,10 @@ depois de resolver:
     **Resolver** (cheio, ▶) — reprodução automática; **■** Parar; **◫** voltar ao passo a passo.
     Só dicas (tooltip), sem textos explicativos. No desktop não há Avançar, e Enter continua
     acionando o Resolver.
+  - **Exemplos** (2×2, 3×3) só **preenchem** o formulário e a tela fica na edição: a resolução
+    anterior é limpa, as letras voltam a x, y, z, o campo preenchido (texto das equações ou células
+    da matriz) recebe foco e um destaque, e o botão do exemplo escolhido fica marcado até a próxima
+    edição. Quem resolve é o usuário (Avançar ou Resolver). No desktop, o exemplo resolve direto.
 - **Parar** leva ao 1º quadrante, com os campos liberados para uma nova escolha; **Resolver** ou
   **Continuar** volta à tela dividida.
 - Na metade de cima a matriz é compacta e a legenda de cores sai (ela está em "Como funciona").

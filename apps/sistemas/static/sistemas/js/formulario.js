@@ -319,6 +319,95 @@
   celular.addEventListener('change', posicionarFerramentas);
   posicionarFerramentas();
 
+  /* Celular: os Exemplos (2×2, 3×3) dentro do 1º quadrante só PREENCHEM o formulário e ficam na
+     edição (RN-028); quem resolve é o usuário, com Avançar ou Resolver. O campo preenchido ganha foco
+     e um destaque, e o botão do exemplo escolhido fica marcado. No desktop, o link resolve direto. */
+  const CAMPOS_GRADE = ['a11', 'a12', 'a13', 'k1', 'a21', 'a22', 'a23', 'k2', 'a31', 'a32', 'a33', 'k3'];
+  let temporizadorDestaque = null;
+
+  function definirIncognitas(letras) {
+    VARS.splice(0, VARS.length, ...letras);
+    const oculto = form && form.elements.incognitas;
+    if (oculto) oculto.value = letras.join(',');
+    if (grade) {
+      grade.dataset.incognitas = letras.join(',');
+      ['x', 'y', 'z'].forEach((papel, j) => {
+        const cab = grade.querySelector('.col-' + papel + '-texto');
+        if (cab) cab.textContent = letras[j];
+      });
+    }
+    for (let i = 1; i <= 3; i++) {
+      for (let j = 1; j <= 3; j++) {
+        const campo = form && form.elements['a' + i + j];
+        if (campo) campo.setAttribute('aria-label', 'Coeficiente de ' + letras[j - 1] + ' na equação ' + i);
+      }
+    }
+  }
+
+  function destacar(alvos, foco) {
+    document.querySelectorAll('.campo-inserido').forEach((el) => el.classList.remove('campo-inserido'));
+    void document.body.offsetWidth;                  // reinicia a animação se o mesmo campo for destacado de novo
+    alvos.forEach((el) => el.classList.add('campo-inserido'));
+    if (foco) {
+      foco.focus({ preventScroll: true });
+      foco.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+    clearTimeout(temporizadorDestaque);
+    temporizadorDestaque = setTimeout(() => alvos.forEach((el) => el.classList.remove('campo-inserido')), 2600);
+  }
+
+  function marcarExemplo(link) {
+    document.querySelectorAll('#ferramentas-q1 .exemplo-ativo').forEach((el) => {
+      el.classList.remove('exemplo-ativo');
+      el.removeAttribute('aria-current');
+    });
+    if (link) {
+      link.classList.add('exemplo-ativo');
+      link.setAttribute('aria-current', 'true');
+    }
+  }
+
+  function inserirExemplo(link) {
+    const dados = new URL(link.href, window.location.href).searchParams;
+    const n = dados.get('n') === '3' ? '3' : '2';
+    limparResolucao();                                // o passo a passo anterior não vale mais
+    if (ordem) ordem.value = n;
+    if (grade) {
+      grade.classList.remove('ordem-2', 'ordem-3');
+      grade.classList.add('ordem-' + n);
+    }
+    CAMPOS_GRADE.forEach((nome) => {
+      const campo = form.elements[nome];
+      if (!campo) return;
+      campo.value = dados.get(nome) || '';
+      campo.removeAttribute('aria-invalid');
+    });
+    definirIncognitas(['x', 'y', 'z']);
+    atualizarSistema();
+    if (texto) texto.value = equacoes().join('\n');
+    textoEditado = false;
+    marcarExemplo(link);
+
+    if (modoEquacoes && modoEquacoes.checked && texto) {
+      destacar([texto], texto);
+    } else {
+      const visiveis = CAMPOS_GRADE.map((nome) => form.elements[nome])
+        .filter((campo) => campo && campo.offsetParent !== null);
+      destacar(visiveis, visiveis[0]);
+    }
+  }
+
+  if (vagaQ1 && form) {
+    vagaQ1.addEventListener('click', (ev) => {
+      const link = ev.target.closest('#ferramenta-exemplos a[href]');
+      if (!link || !celular.matches) return;
+      ev.preventDefault();
+      inserirExemplo(link);
+    });
+    // Editar à mão desfaz a marcação do exemplo.
+    form.addEventListener('input', () => marcarExemplo(null));
+  }
+
   /* Altura real da barra superior: os quadrantes ocupam o restante da tela (primeira dobra). */
   const barra = document.querySelector('.app-navbar');
   function medirBarra() {
