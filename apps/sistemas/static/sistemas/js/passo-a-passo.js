@@ -435,7 +435,9 @@
       if (icone) icone.className = 'bi bi-play-fill';
       btn.setAttribute('aria-label', 'Reproduzir passo a passo');
       if (rotulo && rotulo !== btn) {
-        rotulo.textContent = (atual > 0 && atual < passos.length - 1) ? 'Continuar' : 'Resolver';
+        const meioDoCaminho = atual > 0 && atual < passos.length - 1;
+        // Celular (tela dividida): o botão só aparece na edição, onde é sempre "Resolver" (RN-028).
+        rotulo.textContent = meioDoCaminho && !document.body.classList.contains('modo-dividido') ? 'Continuar' : 'Resolver';
       }
       if (btnParar && (atual > 0 || (cena && !cena.hidden))) {
         btnParar.classList.remove('d-none');

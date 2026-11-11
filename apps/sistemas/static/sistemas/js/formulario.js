@@ -85,6 +85,20 @@
   }
 
   let formModificado = false;
+  // Primeiro acesso (sem sistema no link): sempre "Cramer e escalonamento", mesmo que o navegador
+  // tente restaurar uma escolha antiga do formulário.
+  if (!window.location.search) {
+    const select = document.getElementById('id_metodo');
+    if (select) select.value = 'ambos';
+  }
+  function destacarMetodo() {
+    const select = document.getElementById('id_metodo');
+    if (!select) return;
+    select.classList.remove('campo-inserido');
+    void select.offsetWidth;
+    select.classList.add('campo-inserido');
+    window.setTimeout(() => select.classList.remove('campo-inserido'), 2600);
+  }
   const btnResolver = document.getElementById('btn-resolver');
   const btnParar = document.getElementById('btn-parar');
   const btnCenaParar = document.getElementById('btn-cena-parar');
@@ -123,7 +137,8 @@
       if (icone) icone.className = 'bi bi-play-fill';
       const rotulo = btnResolver.querySelector('.rotulo-resolver');
       if (rotulo && cena && !cena.hidden) {
-        rotulo.textContent = 'Continuar';
+        // Celular (tela dividida): na edição o botão é sempre "Resolver" — uma nova consulta (RN-028).
+        rotulo.textContent = document.body.classList.contains('modo-dividido') ? 'Resolver' : 'Continuar';
       }
     }
     if (btnParar && cena && !cena.hidden) {
@@ -241,6 +256,18 @@
   if (btnResolver) {
     btnResolver.addEventListener('click', (ev) => {
       const cenaAtiva = Boolean(cena && !cena.hidden);
+      if (!formModificado && btnTocar && cenaAtiva && document.body.classList.contains('modo-dividido')) {
+        ev.preventDefault();                          // celular: nova consulta, do passo 1, automática
+        travarPrimeiroQuadrante(true);
+        if (btnParar) btnParar.classList.remove('d-none');
+        if (typeof window.__mostrarPassoAPasso === 'function') window.__mostrarPassoAPasso();
+        if (window.__passoAPasso) {
+          window.__passoAPasso.parar();
+          window.__passoAPasso.ir(0);
+          window.setTimeout(() => window.__passoAPasso.tocar(), 600);
+        }
+        return;
+      }
       if (!formModificado && btnTocar && cenaAtiva) {
         ev.preventDefault();
         travarPrimeiroQuadrante(true);
@@ -265,7 +292,10 @@
       const cenaAtiva = Boolean(cena && !cena.hidden);
       if (!formModificado && cenaAtiva) {
         ev.preventDefault();
-        if (btnTocar && btnTocar.querySelector('.bi-pause-fill')) btnTocar.click();   // pausa se estiver tocando
+        if (window.__passoAPasso) {                   // nova consulta: passo 1, parado
+          window.__passoAPasso.parar();
+          window.__passoAPasso.ir(0);
+        }
         travarPrimeiroQuadrante(true);
         if (btnParar) btnParar.classList.remove('d-none');
         if (typeof window.__mostrarPassoAPasso === 'function') window.__mostrarPassoAPasso();
@@ -288,6 +318,11 @@
     metodo.addEventListener('change', () => {
       formModificado = true;
       limparResolucao();
+      // Celular: a escolha fica na seção até nova alteração manual; quem resolve é Avançar/Resolver.
+      if (window.matchMedia('(max-width: 991.98px)').matches) {
+        destacarMetodo();
+        return;
+      }
       form.requestSubmit();
     });
   }

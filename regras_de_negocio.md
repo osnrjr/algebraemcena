@@ -293,7 +293,8 @@ depois de resolver:
 - A cada passo, só a metade de baixo se move, e volta ao topo para mostrar a explicação do passo.
   Nenhum passo muda o foco nem arrasta a página para outro quadrante.
 - Sem faixa extra de atalhos: o botão **Editar**, no início da linha das seções (Editar, Sistema, Cramer…), pausa a
-  resolução, libera os campos para uma nova consulta e abre o formulário em tela cheia; o
+  resolução, libera os campos para uma nova consulta e abre o formulário em tela cheia (o botão segue
+  como **Resolver**, nunca "Continuar"; Resolver e Avançar recomeçam a consulta do passo 1); o
   botão **◫** ao lado de Resolver/Parar volta ao passo a passo (oculto depois de Parar).
 - No celular (< 992 px), **Método** e **Exemplos** ficam dentro do 1º quadrante (no desktop seguem
   na barra superior); a barra superior fica mais baixa e os textos da resolução, mais leves.
@@ -305,6 +306,9 @@ depois de resolver:
     **Resolver** (cheio, ▶) — reprodução automática; **■** Parar; **◫** voltar ao passo a passo.
     Só dicas (tooltip), sem textos explicativos. No desktop não há Avançar, e Enter continua
     acionando o Resolver.
+  - **Método**: no primeiro acesso (sem sistema no link) vem sempre **Cramer e escalonamento**. Trocar
+    o método só marca a escolha (com destaque) e a mantém na seção até nova alteração manual; quem
+    resolve é Avançar ou Resolver. No desktop, trocar o método resolve na hora (RN-023).
   - **Exemplos** (2×2, 3×3) só **preenchem** o formulário e a tela fica na edição: a resolução
     anterior é limpa, as letras voltam a x, y, z, o campo preenchido (texto das equações ou células
     da matriz) recebe foco e um destaque, e o botão do exemplo escolhido fica marcado até a próxima

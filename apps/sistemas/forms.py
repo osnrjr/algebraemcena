@@ -70,7 +70,8 @@ class SistemaForm(forms.Form):
         for nome in ('n', 'metodo'):
             self.fields[nome].widget.attrs['class'] = 'form-select'
         # O método fica na barra superior, fora do <form>: o atributo HTML `form` o vincula ao formulário.
-        self.fields['metodo'].widget.attrs.update({'class': 'form-select form-select-sm', 'form': 'form-sistema'})
+        self.fields['metodo'].widget.attrs.update({'class': 'form-select form-select-sm', 'form': 'form-sistema',
+                                                   'autocomplete': 'off'})
 
     @staticmethod
     def _campo(rotulo):
