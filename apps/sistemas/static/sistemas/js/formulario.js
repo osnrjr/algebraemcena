@@ -271,6 +271,28 @@
     });
   }
 
+  /* Celular (< 992 px): Método e Exemplos saem do menu ☰ e entram no 1º quadrante (RN-028).
+     O mesmo elemento é movido (não duplicado): o select continua ligado ao formulário. */
+  const vagaQ1 = document.getElementById('ferramentas-q1');
+  const pecasBarra = ['ferramenta-metodo', 'ferramenta-exemplos']
+    .map((id) => document.getElementById(id)).filter(Boolean);
+  const lugaresBarra = pecasBarra.map((peca) => {
+    const marca = document.createComment('lugar de ' + peca.id);
+    peca.before(marca);
+    return marca;
+  });
+  const celular = window.matchMedia('(max-width: 991.98px)');
+  function posicionarFerramentas() {
+    if (!vagaQ1) return;
+    pecasBarra.forEach((peca, i) => {
+      if (celular.matches) vagaQ1.appendChild(peca);
+      else lugaresBarra[i].after(peca);
+    });
+    vagaQ1.hidden = !celular.matches;
+  }
+  celular.addEventListener('change', posicionarFerramentas);
+  posicionarFerramentas();
+
   /* Altura real da barra superior: os quadrantes ocupam o restante da tela (primeira dobra). */
   const barra = document.querySelector('.app-navbar');
   function medirBarra() {

@@ -528,14 +528,11 @@
   const telaDividida = window.matchMedia('(max-width: 1199.98px) and (min-height: 540px)');
   const telaEmpilhada = window.matchMedia('(max-width: 1199.98px)');
   const corpo = document.body;
-  const atalhos = document.querySelectorAll('.quadrantes-nav [data-vista]');
+  // Lápis no cabeçalho da cena: editar o sistema; botão no formulário: voltar ao passo a passo.
+  const atalhos = document.querySelectorAll('[data-vista]');
 
   function mostrarVista(vista) {
     corpo.classList.toggle('vista-sistema', vista === 'sistema');
-    atalhos.forEach((a) => {
-      if (a.dataset.vista === vista) a.setAttribute('aria-current', 'true');
-      else a.removeAttribute('aria-current');
-    });
     window.scrollTo(0, 0);
   }
 
@@ -547,7 +544,7 @@
   }
 
   atalhos.forEach((a) => a.addEventListener('click', (ev) => {
-    if (!corpo.classList.contains('modo-dividido')) return;   // empilhado: âncora normal
+    if (!corpo.classList.contains('modo-dividido')) return;
     ev.preventDefault();
     mostrarVista(a.dataset.vista);
   }));
@@ -558,7 +555,25 @@
   });
   window.__mostrarPassoAPasso = () => { if (corpo.classList.contains('modo-dividido')) mostrarVista('passos'); };
 
-  telaDividida.addEventListener('change', aplicarDivisao);
+  /* A metade de cima só cresce durante a resolução: passos menores (resultado, classificação)
+     não puxam a divisória para cima; ela fica na altura do maior passo já visto. */
+  const cenaCard = document.getElementById('cena');
+  let alturaCena = 0;
+  function fixarAlturaCena() {
+    if (!corpo.classList.contains('modo-dividido')) {
+      alturaCena = 0;
+      cenaCard.style.minHeight = '';
+      return;
+    }
+    const altura = cenaCard.scrollHeight;
+    if (altura > alturaCena + 1) {
+      alturaCena = altura;
+      cenaCard.style.minHeight = altura + 'px';
+    }
+  }
+  if (cenaCard && 'ResizeObserver' in window) new ResizeObserver(fixarAlturaCena).observe(cenaCard);
+
+  telaDividida.addEventListener('change', () => { alturaCena = 0; cenaCard.style.minHeight = ''; aplicarDivisao(); });
   aplicarDivisao();
 
   /* Empilhado (sem divisão): depois de resolver, mostrar direto a matriz. */

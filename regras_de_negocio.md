@@ -267,11 +267,16 @@ Celular e tablet (< 1200 px): os quadrantes se empilham na mesma ordem, cada um 
 Em telas com menos de 1200 px de largura e pelo menos 540 px de altura (celular e tablet em pé),
 depois de resolver:
 
-- A tela se divide ao meio: o 2º quadrante (matriz, controles e seções) fica **fixo** na metade de
-  cima; o 3º (conta) **rola** na metade de baixo. A página não rola.
+- A tela se divide: o 2º quadrante (matriz, controles e seções) fica **fixo** em cima, só com a
+  altura de que precisa (no máximo 64% da tela); o 3º (conta) **rola** no restante. A página não rola.
+- A divisória não salta entre os passos: o espaço dos produtos das diagonais fica reservado
+  (1 linha no 2×2, 2 no 3×3) e a parte de cima nunca encolhe durante a resolução.
 - A cada passo, só a metade de baixo se move, e volta ao topo para mostrar a explicação do passo.
   Nenhum passo muda o foco nem arrasta a página para outro quadrante.
-- Atalhos no topo: **Sistema** (o formulário em tela cheia) e **Passo a passo** (a tela dividida).
+- Sem faixa extra de atalhos: o **lápis** no cabeçalho da cena abre o formulário em tela cheia e o
+  botão **◫** ao lado de Resolver/Parar volta ao passo a passo (oculto depois de Parar).
+- No celular (< 992 px), **Método** e **Exemplos** ficam dentro do 1º quadrante (no desktop seguem
+  na barra superior); a barra superior fica mais baixa e os textos da resolução, mais leves.
 - **Parar** leva ao 1º quadrante, com os campos liberados para uma nova escolha; **Resolver** ou
   **Continuar** volta à tela dividida.
 - Na metade de cima a matriz é compacta e a legenda de cores sai (ela está em "Como funciona").
