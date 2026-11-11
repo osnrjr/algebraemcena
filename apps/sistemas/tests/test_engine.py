@@ -5,7 +5,7 @@ from fractions import Fraction
 
 from django.test import SimpleTestCase
 
-from apps.sistemas.engine import ErroEntrada, ler_numero, ler_sistema, resolver
+from apps.sistemas.engine import ErroEntrada, ler_numero, ler_sistema, ler_sistema_com_incognitas, resolver
 from apps.sistemas.engine.determinante import det, memoria_sarrus, substituir_coluna
 
 
@@ -215,4 +215,49 @@ class EquacoesTests(SimpleTestCase):
 
     def test_mensagem_indica_a_equacao(self):
         with self.assertRaisesMessage(ErroEntrada, 'Equação 2'):
+            ler_sistema('x + y = 1\nx + 2#y = 2')
+
+    def test_mais_incognitas_que_equacoes(self):
+        with self.assertRaisesMessage(ErroEntrada, 'Há 3 incógnitas (w, x, y) para 2 equações'):
             ler_sistema('x + y = 1\nx + w = 2')
+
+
+class IncognitasQuaisquerTests(SimpleTestCase):
+    """RN-022: qualquer letra é incógnita; colunas em ordem alfabética; cores pela coluna."""
+
+    def test_letras_a_b_c_como_x_y_z(self):
+        A, K, letras = ler_sistema_com_incognitas('3a - 2b + c = -2\n-a + 3b - 2c = -3\na - 4b + c = -4')
+        self.assertEqual(letras, ['a', 'b', 'c'])
+        self.assertEqual(A, [[3, -2, 1], [-1, 3, -2], [1, -4, 1]])
+        trace = resolver(A, K, 'ambos', rotulos=letras)
+        self.assertEqual(trace['entrada']['rotulos'], ['a', 'b', 'c'])
+        self.assertEqual(trace['resultado']['classificacao'], 'SPD')
+        textos = ' '.join(p['titulo'] + ' ' + p['texto'] for p in trace['passos'])
+        self.assertIn('Da', textos)
+        self.assertNotIn('Dx', textos)
+
+    def test_ordem_alfabetica_e_maiusculas(self):
+        A, _, letras = ler_sistema_com_incognitas('2N + M = 5\nM - N = 1')
+        self.assertEqual(letras, ['m', 'n'])
+        self.assertEqual(A, [[1, 2], [1, -1]])
+
+    def test_x_y_z_continuam_como_antes(self):
+        _, _, letras = ler_sistema_com_incognitas('x - y - 3z = 49\nx + 3y + z = 153\n-2x + 5z = 24')
+        self.assertEqual(letras, ['x', 'y', 'z'])
+        A, _, letras = ler_sistema_com_incognitas('x + y = 2\nx - y = 0\n2x = 2')   # z ausente vale 0
+        self.assertEqual(letras, ['x', 'y', 'z'])
+        self.assertEqual(A[2], [2, 0, 0])
+        _, _, letras = ler_sistema_com_incognitas('x + z = 1\nx - z = 3')
+        self.assertEqual(letras, ['x', 'z'])
+
+    def test_menos_incognitas_que_equacoes(self):
+        with self.assertRaisesMessage(ErroEntrada, 'Com 3 equações use 3 incógnitas; encontrei só a, b'):
+            ler_sistema('a + b = 1\na - b = 2\n2a = 3')
+
+    def test_parametro_do_spi_nao_repete_uma_incognita(self):
+        A, K, letras = ler_sistema_com_incognitas('r + 2s - t = 4\n2r - s + 3t = 9\n3r + s + 2t = 13')
+        trace = resolver(A, K, 'escalonamento', rotulos=letras)
+        self.assertEqual(trace['resultado']['classificacao'], 'SPI')
+        nomes = trace['resultado']['parametros']
+        self.assertTrue(nomes)
+        self.assertFalse(set(nomes) & {'r', 's', 't'})

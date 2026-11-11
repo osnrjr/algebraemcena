@@ -1,6 +1,9 @@
 from django import forms
 
-from .engine import METODOS, ErroEntrada, ler_numero, ler_sistema
+import re
+import string
+
+from .engine import METODOS, ErroEntrada, ler_numero, ler_sistema_com_incognitas
 from .engine.equacoes import LIMITE_TEXTO
 
 ORDENS = [('2', '2×2'), ('3', '3×3')]
@@ -8,6 +11,35 @@ ENTRADAS = [('matriz', 'Matriz'), ('equacoes', 'Equações')]
 NOMES_METODO = {'ambos': 'Cramer e escalonamento', 'cramer': 'Regra de Cramer',
                 'escalonamento': 'Escalonamento'}
 VARIAVEIS = ['x', 'y', 'z']
+_RE_INCOGNITAS = re.compile(r'^[a-z](,[a-z]){0,2}$')
+
+
+def completar_incognitas(letras, total=3):
+    """Completa a lista de incógnitas até `total` letras (para a grade 3×3), sem repetir.
+
+    Só x, y, z: completa com x, y, z. Outras letras: com as próximas do alfabeto (a, b → c).
+    """
+    letras = [l for l in (letras or []) if l][:total]
+    if set(letras) <= set(VARIAVEIS):
+        candidatas = VARIAVEIS + list(string.ascii_lowercase)
+    else:
+        inicio = string.ascii_lowercase.index(max(letras)) + 1
+        candidatas = list(string.ascii_lowercase[inicio:] + string.ascii_lowercase)
+    for letra in candidatas:
+        if len(letras) >= total:
+            break
+        if letra not in letras:
+            letras.append(letra)
+    return letras
+
+
+def ler_incognitas(texto):
+    """'a,b,c' -> ['a', 'b', 'c']; vazio ou inválido -> x, y, z (o campo é oculto: não há erro a mostrar)."""
+    texto = (texto or '').replace(' ', '').lower()
+    if not _RE_INCOGNITAS.match(texto):
+        return list(VARIAVEIS)
+    letras = texto.split(',')
+    return completar_incognitas(letras) if len(set(letras)) == len(letras) else list(VARIAVEIS)
 
 
 class SistemaForm(forms.Form):
@@ -24,13 +56,16 @@ class SistemaForm(forms.Form):
                                      'autocomplete': 'off',
                                      'placeholder': '2x + 3y = 4\n-x + 2y = 5'}),
     )
+    # Letras das incógnitas (RN-022), ex.: 'a,b,c'. Vêm das equações e seguem no modo Matriz e no link.
+    incognitas = forms.CharField(required=False, widget=forms.HiddenInput)   # validado em ler_incognitas
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.letras = ler_incognitas(self.data.get('incognitas') if self.is_bound else '')
         for i in range(1, 4):
             for j in range(1, 4):
                 self.fields[f'a{i}{j}'] = self._campo(
-                    f'Coeficiente de {VARIAVEIS[j - 1]} na equação {i}')
+                    f'Coeficiente de {self.letras[j - 1]} na equação {i}')
             self.fields[f'k{i}'] = self._campo(f'Termo independente da equação {i}')
         for nome in ('n', 'metodo'):
             self.fields[nome].widget.attrs['class'] = 'form-select'
@@ -49,7 +84,7 @@ class SistemaForm(forms.Form):
         dados = super().clean()
         if dados.get('entrada') == 'equacoes':
             try:
-                A, K = ler_sistema(dados.get('equacoes'))
+                A, K, incognitas = ler_sistema_com_incognitas(dados.get('equacoes'))
             except ErroEntrada as erro:
                 self.add_error('equacoes', str(erro))
                 return dados
@@ -58,7 +93,9 @@ class SistemaForm(forms.Form):
             n = int(dados.get('n') or 2)
             A = [[self._ler(f'a{i}{j}') for j in range(1, n + 1)] for i in range(1, n + 1)]
             K = [self._ler(f'k{i}') for i in range(1, n + 1)]
+            incognitas = self.letras[:n]
         dados['A'], dados['K'], dados['ordem'] = A, K, len(A)
+        dados['incognitas'] = incognitas
         return dados
 
     def _ler(self, nome):
@@ -73,10 +110,11 @@ class SistemaForm(forms.Form):
         return [(i, [self[f'a{i}{j}'] for j in range(1, 4)], self[f'k{i}']) for i in range(1, 4)]
 
 
-def dados_de_exibicao(dados, A, K, equacoes):
+def dados_de_exibicao(dados, A, K, equacoes, incognitas):
     """Dados para redesenhar o formulário com a grade e as equações preenchidas pelo sistema lido."""
     novos = dados.copy()
     novos['n'] = str(len(A))
+    novos['incognitas'] = ','.join(completar_incognitas(incognitas))
     for i, linha in enumerate(A, start=1):
         for j, valor in enumerate(linha, start=1):
             novos[f'a{i}{j}'] = str(valor)

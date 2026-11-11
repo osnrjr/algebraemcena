@@ -233,7 +233,16 @@ A mesma entrada (após normalização para frações) gera exatamente o mesmo *t
 
 ### RN-022 — Sistema digitado como equações
 
-- Uma equação por linha (ou separadas por `;`); 2 linhas = sistema 2×2 (x, y); 3 linhas = 3×3 (x, y, z).
+- Uma equação por linha (ou separadas por `;`); 2 linhas = sistema 2×2; 3 linhas = 3×3.
+- **Incógnitas: qualquer letra.** Cada letra é uma incógnita; `2a + 3b = 4` é tratado como `2x + 3y = 4`.
+  - Só x, y, z (ou parte delas): as incógnitas são x, y[, z], e uma letra ausente em todas as
+    equações vale coeficiente 0 (ex.: 3 equações só com x e y).
+  - Outras letras: são tantas quanto as equações, em **ordem alfabética** (a, b, c → colunas 1, 2, 3).
+    Mais letras que equações, ou menos, é erro ("Há 3 incógnitas (w, x, y) para 2 equações").
+  - As cores seguem a **coluna**, não a letra: a 1ª incógnita é sempre azul, a 2ª verde, a 3ª laranja.
+  - As letras aparecem em toda a resolução (cabeçalhos, `Da`, `a = Da / D`, verificação, .txt) e
+    seguem no modo Matriz e no link (campo `incognitas`, ex.: `a,b,c`; valor inválido volta a x, y, z).
+  - Os parâmetros do SPI (t, s, …) nunca repetem uma letra usada como incógnita.
 - Lado esquerdo: soma de termos `coeficiente·variável`, em qualquer ordem; coeficiente omitido vale 1 (`x`, `−y`); aceita `3x`, `3*x`, `3·x`, `(3/4)x`, `0,5z`; termos repetidos são somados; variável ausente vale 0. Maiúsculas e o sinal `−` são aceitos.
 - Lado direito: um número (RN-001). Constantes à esquerda não são aceitas (`2x + 3 = 4` é erro).
 - Erros indicam a equação: "Equação 2: não entendi o termo '…'". Limite de 300 caracteres.

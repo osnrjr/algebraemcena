@@ -13,7 +13,7 @@ from .engine import METODOS, ErroEntrada, resolver
 from .forms import SistemaForm, dados_de_exibicao
 
 INICIAL = exemplos_rapidos.parametros(*exemplos_rapidos.EXEMPLOS[0][1:])
-CAMPOS_QUERY = ['entrada', 'metodo', 'n', 'equacoes'] + [
+CAMPOS_QUERY = ['entrada', 'metodo', 'n', 'equacoes', 'incognitas'] + [
     f'{c}{i}{j}' for i in range(1, 4) for c, j in [('a', 1), ('a', 2), ('a', 3), ('k', '')]]
 
 
@@ -29,7 +29,7 @@ def _limite_excedido(request):
 def _calcular(form):
     dados = form.cleaned_data
     try:
-        return resolver(dados['A'], dados['K'], dados['metodo'])
+        return resolver(dados['A'], dados['K'], dados['metodo'], rotulos=dados['incognitas'])
     except ErroEntrada as erro:
         form.add_error(None, str(erro))
         return None
@@ -57,7 +57,7 @@ def resolver_view(request):
     else:
         equacoes = trace['passos'][0]['equacoes']
         form = SistemaForm(dados_de_exibicao(form.data, form.cleaned_data['A'],
-                                              form.cleaned_data['K'], equacoes))
+                                              form.cleaned_data['K'], equacoes, trace['entrada']['rotulos']))
     try:
         ordem = int(form.data.get('n', 2))
     except (TypeError, ValueError):
@@ -66,6 +66,7 @@ def resolver_view(request):
     contexto = {
         'form': form,
         'grade': form.grade(),
+        'letras': form.letras,
         'ordem': ordem if ordem in (2, 3) else 2,
         'entrada': 'equacoes' if form.data.get('entrada') == 'equacoes' else 'matriz',
         'trace': trace,

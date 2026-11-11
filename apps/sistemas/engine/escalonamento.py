@@ -5,7 +5,7 @@ from math import gcd
 
 from .numeros import formatar_expressao
 
-PARAMETROS = ['t', 's']
+PARAMETROS = ['t', 's', 'u', 'v', 'w', 'r', 'p', 'q']   # o primeiro livre que não seja uma incógnita
 
 
 def _rotulo(i):
@@ -145,7 +145,8 @@ def solucao_geral(reduzida, pivos, n, rotulos):
     """
     colunas_pivo = {c: l for l, c in pivos}
     livres = [c for c in range(n) if c not in colunas_pivo]
-    nomes = {c: PARAMETROS[k] for k, c in enumerate(livres)}
+    disponiveis = [p for p in PARAMETROS if p not in {r.lower() for r in rotulos}]
+    nomes = {c: disponiveis[k] for k, c in enumerate(livres)}
     expressoes, particular = [], []
     for j in range(n):
         if j in nomes:

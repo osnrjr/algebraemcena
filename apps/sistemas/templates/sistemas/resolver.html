@@ -64,18 +64,19 @@
         <label class="form-label" for="{{ form.equacoes.id_for_label }}">Sistema (uma equação por linha)</label>
         {{ form.equacoes }}
         {% if form.equacoes.errors %}<p class="erro-campo">{{ form.equacoes.errors|join:" " }}</p>{% endif %}
-        <p class="small texto-suave mt-2 mb-0">Use x, y e z. Exemplo: <span class="font-monospace">3x − 2y + z = −2</span>. A matriz é montada a partir das equações.</p>
+        <p class="small texto-suave mt-2 mb-0">Use uma letra por incógnita: x, y, z ou outras (a, b, c…). Exemplo: <span class="font-monospace">3x − 2y + z = −2</span>. A matriz é montada a partir das equações.</p>
       </div>
 
+      {{ form.incognitas }}
       <div class="bloco-matriz">
         <div class="mb-2">
           <label class="form-label" for="{{ form.n.id_for_label }}">{{ form.n.label }}</label>
           {{ form.n }}
         </div>
-        <fieldset class="grade-coeficientes ordem-{{ ordem }}" id="grade"{% if exemplo_l3_json %} data-exemplo-l3="{{ exemplo_l3_json }}"{% endif %}>
+        <fieldset class="grade-coeficientes ordem-{{ ordem }}" id="grade" data-incognitas="{{ letras|join:',' }}"{% if exemplo_l3_json %} data-exemplo-l3="{{ exemplo_l3_json }}"{% endif %}>
           <legend class="form-label">Matriz [A | K]</legend>
           <div class="grade-cab" aria-hidden="true">
-            <span></span><span class="col-x-texto">x</span><span class="col-y-texto">y</span><span class="col-z-texto so-3">z</span><span></span><span class="col-k-texto">K</span>
+            <span></span><span class="col-x-texto">{{ letras.0 }}</span><span class="col-y-texto">{{ letras.1 }}</span><span class="col-z-texto so-3">{{ letras.2 }}</span><span></span><span class="col-k-texto">K</span>
           </div>
           {% for i, campos, k in grade %}
           <div class="grade-linha{% if i == 3 %} so-3{% endif %}">

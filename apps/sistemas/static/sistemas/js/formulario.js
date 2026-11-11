@@ -5,10 +5,11 @@
 
   document.body.classList.add('pagina-resolver');
 
-  const VARS = ['x', 'y', 'z'];
   const form = document.getElementById('form-sistema');
   const ordem = document.getElementById('id_n');
   const grade = document.getElementById('grade');
+  // Letras das incógnitas (RN-022): x, y, z ou as que vieram das equações (a, b, c…).
+  const VARS = ((grade && grade.dataset.incognitas) || 'x,y,z').split(',');
   const lista = document.getElementById('sistema-informado');
   const texto = document.getElementById('id_equacoes');
   const modoEquacoes = document.getElementById('entrada-equacoes');

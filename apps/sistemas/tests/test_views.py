@@ -80,6 +80,36 @@ class ResolverViewTests(TestCase):
         self.assertContains(r, 'name="a33" value="1"')
         self.assertContains(r, 'class="grade-coeficientes ordem-3"')
 
+    def test_incognitas_com_outras_letras(self):
+        """RN-022: a, b, c funcionam como x, y, z; a grade, o link e o .txt seguem as letras."""
+        dados = {'entrada': 'equacoes', 'metodo': 'ambos',
+                 'equacoes': '3a - 2b + c = -2\n-a + 3b - 2c = -3\na - 4b + c = -4'}
+        r = self.client.get(self.url, dados)
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'S = {(\u22121, 2, 5)}')
+        self.assertContains(r, '<span class="col-x-texto">a</span>')
+        self.assertContains(r, 'data-incognitas="a,b,c"')
+        self.assertContains(r, 'name="incognitas" value="a,b,c"')
+        self.assertContains(r, 'incognitas=a%2Cb%2Cc')
+        self.assertContains(r, 'Coeficiente de b na equação 1')
+        txt = self.client.get(reverse('sistemas:solucao_txt'), dados).content.decode()
+        self.assertIn('a = Da / D', txt)
+        self.assertNotIn('Dx', txt)
+
+    def test_modo_matriz_mantem_as_letras(self):
+        dados = parametros([[2, 3], [-1, 2]], [4, 5])
+        dados.update({'entrada': 'matriz', 'incognitas': 'm,n,o'})
+        r = self.client.get(self.url, {k: str(v) for k, v in dados.items()})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.context['trace']['entrada']['rotulos'], ['m', 'n'])
+        self.assertContains(r, '<span class="col-y-texto">n</span>')
+
+    def test_incognitas_invalidas_voltam_para_x_y_z(self):
+        dados = parametros([[2, 3], [-1, 2]], [4, 5])
+        dados.update({'entrada': 'matriz', 'incognitas': '<script>'})
+        r = self.client.get(self.url, {k: str(v) for k, v in dados.items()})
+        self.assertEqual(r.context['trace']['entrada']['rotulos'], ['x', 'y'])
+
     def test_link_por_equacoes_sem_ordem(self):
         dados = {'entrada': 'equacoes', 'metodo': 'cramer', 'equacoes': '2x+3y=4\n-x+2y=5'}
         r = self.client.get(self.url, dados)
