@@ -5,6 +5,7 @@ O *trace* é o contrato único (ADR-001). Mudança incompatível incrementa `VER
 
 import hashlib
 import json
+import re
 from fractions import Fraction
 
 from . import determinante, escalonamento
@@ -110,6 +111,72 @@ def _verificar(A, K, valores, rotulos):
         itens.append({'linha': i, 'texto': f'L{i + 1}: {conta} = {exibir(total)} {"✓" if ok else "✗"}',
                       'ok': ok})
     return itens, todos
+
+
+def _em_funcao_das_livres(expressao, parametros):
+    """Troca cada parâmetro (t, s) pela variável livre que ele representa: '1 − t' -> '1 − y'."""
+    for p in parametros:
+        expressao = re.sub(rf'(?<![A-Za-z]){re.escape(p["nome"])}(?![A-Za-z])', p['variavel'], expressao)
+    return expressao
+
+
+def _lista(itens):
+    return itens[0] if len(itens) == 1 else ', '.join(itens[:-1]) + ' e ' + itens[-1]
+
+
+def apresentacao_formal(classe, n, rotulos, expressoes, parametros, conjunto):
+    """Conjunto solução nos termos formais da Álgebra Linear (RN-029).
+
+    SPD: uma n-upla ordenada, sem "x ∈ ℝ". SPI: forma genérica em função da(s) variável(is) livre(s)
+    e do conjunto a que pertence(m), também escrita com parâmetro (t, s). SI: S = ∅ ou S = { }.
+    """
+    tupla, tuplas = ('par ordenado', 'pares ordenados') if n == 2 else ('terno ordenado', 'ternos ordenados')
+    incognitas = '(' + ', '.join(rotulos) + ')'
+    formal = _formal_da_classe(classe, n, rotulos, expressoes, parametros, conjunto, tupla, tuplas, incognitas)
+    exemplo_spd, exemplo_spi = (('(a, b)', '(x, f(x)) | x ∈ ℝ') if n == 2
+                                else ('(a, b, c)', '(f(z), g(z), z) | z ∈ ℝ'))
+    formal['resumo'] = [
+        {'classe': 'SPD', 'quantidade': 'Única', 'formato': 'S = {' + exemplo_spd + '}', 'atual': classe == 'SPD'},
+        {'classe': 'SPI', 'quantidade': 'Infinitas', 'formato': 'S = {' + exemplo_spi + '}', 'atual': classe == 'SPI'},
+        {'classe': 'SI', 'quantidade': 'Nenhuma', 'formato': 'S = { } ou S = ∅', 'atual': classe == 'SI'},
+    ]
+    return formal
+
+
+def _formal_da_classe(classe, n, rotulos, expressoes, parametros, conjunto, tupla, tuplas, incognitas):
+    if classe == 'SPD':
+        valores = _lista([f'{r} = {e}' for r, e in zip(rotulos, expressoes)])
+        return {
+            'quantidade': 'Solução única',
+            'formas': [conjunto],
+            'leitura': f'O conjunto solução tem um único {tupla} {incognitas}: {valores}.',
+            'nota': f'Não é preciso escrever {_lista([r + " ∈ ℝ" for r in rotulos])}: '
+                    'os valores já estão definidos explicitamente.',
+        }
+    if classe == 'SPI':
+        livres = [p['variavel'] for p in parametros]
+        genericas = [_em_funcao_das_livres(e, parametros) for e in expressoes]
+        em_livres = 'S = {(' + ', '.join(genericas) + ') | ' + ', '.join(livres) + ' ∈ ℝ}'
+        plural = len(livres) > 1
+        pertence = 'pertencem' if plural else 'pertence'
+        nomes_param = _lista([p['nome'] for p in parametros])
+        return {
+            'quantidade': 'Infinitas soluções',
+            'formas': [em_livres, conjunto],
+            'leitura': f'O conjunto solução é formado pelos {tuplas} ({", ".join(genericas)}), '
+                       f'tal que {_lista(livres)} {pertence} aos reais.',
+            'nota': f'{_lista(livres)} {"são variáveis livres" if plural else "é a variável livre"}: '
+                    f'cada valor real escolhido dá uma solução. A barra “|” (ou “;”) se lê “tal que”. '
+                    + (f'Na segunda forma, os parâmetros {nomes_param} fazem o papel de {_lista(livres)}.' if plural
+                       else f'Na segunda forma, o parâmetro {nomes_param} faz o papel de {livres[0]}.'),
+        }
+    return {
+        'quantidade': 'Nenhuma solução',
+        'formas': ['S = ∅', 'S = { }'],
+        'leitura': f'Nenhum {tupla} {incognitas} satisfaz todas as equações ao mesmo tempo.',
+        'nota': 'Atenção: S = {∅} está errado — seria um conjunto com um elemento (o símbolo ∅), '
+                'e não um conjunto sem soluções.',
+    }
 
 
 def resolver(A, K, metodo='ambos', rotulos=None):
@@ -224,9 +291,14 @@ def resolver(A, K, metodo='ambos', rotulos=None):
         conjunto = 'S = ∅'
         resultado['solucao'] = []
 
-    itens_sol = [{'variavel': j, 'texto': f'{rotulos[j]} = {e}'} for j, e in enumerate(expressoes)]
-    c.add('solucao', 'resultado', 'Conjunto solução', conjunto, itens=itens_sol, conjunto=conjunto,
-          parametros=parametros)
+    formal = apresentacao_formal(classe, n, rotulos, expressoes, parametros, conjunto)
+    if classe == 'SPI':                               # cada incógnita escrita em função das livres
+        expressoes = [_em_funcao_das_livres(e, parametros) for e in expressoes]
+    livres = {p['variavel'] for p in parametros}
+    itens_sol = [{'variavel': j, 'texto': f'{rotulos[j]} ∈ ℝ (variável livre)' if rotulos[j] in livres
+                  else f'{rotulos[j]} = {e}'} for j, e in enumerate(expressoes)]
+    c.add('solucao', 'resultado', f'Conjunto solução: {formal["quantidade"].lower()}', formal['leitura'],
+          itens=itens_sol, conjunto=formal['formas'][0], formal=formal, parametros=parametros)
 
     if valores_verif is not None:
         itens, todos = _verificar(A, K, valores_verif, rotulos)
@@ -234,14 +306,14 @@ def resolver(A, K, metodo='ambos', rotulos=None):
         texto = 'Substituindo a solução em cada equação original:'
         if classe == 'SPI':
             texto = ('Substituindo a solução particular com ' +
-                     ', '.join(f'{p["nome"]} = 0' for p in parametros) + ' em cada equação original:')
+                     ', '.join(f'{p["variavel"]} = 0' for p in parametros) + ' em cada equação original:')
         c.add('verificacao', 'resultado', titulo, texto, itens=itens, ok=todos)
 
     entrada = {'n': n, 'A': _mj(A), 'K': [para_json(v) for v in K], 'metodo': metodo,
                'rotulos': rotulos}
     resumo = json.dumps(entrada, sort_keys=True, ensure_ascii=False)
     resultado.update({'classificacao': classe, 'posto_A': posto_a, 'posto_AK': posto_ak,
-                      'D': para_json(D), 'conjunto': conjunto,
+                      'D': para_json(D), 'conjunto': conjunto, 'formal': formal,
                       'parametros': [p['nome'] for p in parametros]})
     return {
         'versao': VERSAO,

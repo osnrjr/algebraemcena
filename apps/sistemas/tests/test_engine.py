@@ -261,3 +261,55 @@ class IncognitasQuaisquerTests(SimpleTestCase):
         nomes = trace['resultado']['parametros']
         self.assertTrue(nomes)
         self.assertFalse(set(nomes) & {'r', 's', 't'})
+
+
+class ApresentacaoFormalTests(SimpleTestCase):
+    """RN-029: o conjunto solução nos termos formais, conforme a classificação."""
+
+    def resolver_texto(self, texto, metodo='ambos'):
+        A, K, letras = ler_sistema_com_incognitas(texto)
+        trace = resolver(A, K, metodo, rotulos=letras)
+        passo = next(p for p in trace['passos'] if p['tipo'] == 'solucao')
+        return trace, passo, passo['formal']
+
+    def test_spd_um_unico_par_sem_pertence_aos_reais(self):
+        trace, passo, formal = self.resolver_texto('2x + 3y = 4\n-x + 2y = 5')
+        self.assertEqual(formal['formas'], ['S = {(−1, 2)}'])
+        self.assertEqual(formal['quantidade'], 'Solução única')
+        self.assertIn('único par ordenado (x, y): x = −1 e y = 2', formal['leitura'])
+        self.assertIn('Não é preciso escrever x ∈ ℝ e y ∈ ℝ', formal['nota'])
+        self.assertNotIn('∈', formal['formas'][0])
+        self.assertEqual(passo['titulo'], 'Conjunto solução: solução única')
+        self.assertEqual(trace['resultado']['formal'], formal)
+
+    def test_spi_em_funcao_da_variavel_livre_e_com_parametro(self):
+        _, passo, formal = self.resolver_texto('x + 2y - z = 4\n2x - y + 3z = 9\n3x + y + 2z = 13', 'escalonamento')
+        self.assertEqual(formal['formas'], ['S = {(22/5 − z, −1/5 + z, z) | z ∈ ℝ}',
+                                            'S = {(22/5 − t, −1/5 + t, t) | t ∈ ℝ}'])
+        self.assertIn('ternos ordenados (22/5 − z, −1/5 + z, z), tal que z pertence aos reais', formal['leitura'])
+        self.assertIn('“tal que”', formal['nota'])
+        self.assertIn('z ∈ ℝ (variável livre)', [i['texto'] for i in passo['itens']])
+
+    def test_spi_com_duas_livres(self):
+        _, _, formal = self.resolver_texto('x + y + z = 1\n2x + 2y + 2z = 2\n3x + 3y + 3z = 3', 'escalonamento')
+        self.assertEqual(formal['formas'][0], 'S = {(1 − y − z, y, z) | y, z ∈ ℝ}')
+        self.assertIn('tal que y e z pertencem aos reais', formal['leitura'])
+        self.assertIn('os parâmetros t e s fazem o papel de y e z', formal['nota'])
+
+    def test_si_conjunto_vazio_nunca_chaves_com_vazio(self):
+        _, _, formal = self.resolver_texto('x + 2y - z = 4\n2x - y + 3z = 9\n3x + y + 2z = 10', 'escalonamento')
+        self.assertEqual(formal['formas'], ['S = ∅', 'S = { }'])
+        self.assertNotIn('S = {∅}', formal['formas'])
+        self.assertIn('S = {∅} está errado', formal['nota'])
+        self.assertEqual([r['classe'] for r in formal['resumo'] if r['atual']], ['SI'])
+
+    def test_resumo_comparativo_por_ordem(self):
+        _, _, f2 = self.resolver_texto('2x + 3y = 4\n-x + 2y = 5')
+        self.assertEqual([r['formato'] for r in f2['resumo']],
+                         ['S = {(a, b)}', 'S = {(x, f(x)) | x ∈ ℝ}', 'S = { } ou S = ∅'])
+        _, _, f3 = self.resolver_texto('3x - 2y + z = -2\n-x + 3y - 2z = -3\nx - 4y + z = -4')
+        self.assertEqual(f3['resumo'][0]['formato'], 'S = {(a, b, c)}')
+
+    def test_letras_quaisquer_na_forma_formal(self):
+        _, _, formal = self.resolver_texto('a + b = 1\n2a + 2b = 2', 'escalonamento')
+        self.assertEqual(formal['formas'][0], 'S = {(1 − b, b) | b ∈ ℝ}')

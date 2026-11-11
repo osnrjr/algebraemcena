@@ -84,7 +84,14 @@ def linhas_do_passo(passo):
     if tipo in ('quocientes', 'verificacao'):
         return [item['texto'] for item in passo['itens']]
     if tipo == 'solucao':
-        return [passo['conjunto']] + [item['texto'] for item in passo['itens']]
+        formal = passo.get('formal')
+        if not formal:
+            return [passo['conjunto']] + [item['texto'] for item in passo['itens']]
+        return ([formal['formas'][0]] + [f'ou {f}' for f in formal['formas'][1:]]
+                + [formal['leitura']] + [item['texto'] for item in passo['itens']]
+                + [f'Nota: {formal["nota"]}', 'Como se escreve o conjunto solução:']
+                + [f'{"►" if r["atual"] else "·"} {r["classe"]} — {r["quantidade"]}: {r["formato"]}'
+                   for r in formal['resumo']])
     return [passo['texto']]
 
 
@@ -115,7 +122,8 @@ def texto(trace):
         'ÁLGEBRA EM CENA — Resolução de sistema linear',
         regua,
         f'Ordem: {n}×{n}    Método: {NOMES_METODO.get(entrada["metodo"], entrada["metodo"])}',
-        f'Classificação: {resultado["classificacao"]}    {resultado["conjunto"]}',
+        f'Classificação: {resultado["classificacao"]} ({resultado["formal"]["quantidade"].lower()})'
+        f'    {resultado["formal"]["formas"][0]}',
         regua,
     ]
     for numero, grupo in enumerate(secoes(trace), start=1):

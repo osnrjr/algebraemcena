@@ -193,6 +193,24 @@ A frase de justificativa sempre cita r, r' e n.
 
 Para SPD (e para a solução particular no SPI), substituir os valores em **cada equação original** e mostrar a conta e o resultado com ✓ ou ✗ (ex.: `2·(−1) + 3·2 = 4 ✓`). ✗ nunca deve ocorrer; se ocorrer, é defeito do motor e o teste falha.
 
+### RN-029 — Conjunto solução nos termos formais
+
+O passo final "Conjunto solução" (animação, quadrante Conta e .txt) apresenta S conforme a classificação:
+
+| Classe | Soluções | Como se escreve | Exemplo (2 incógnitas) |
+| :-: | :-- | :-- | :-- |
+| SPD | Única | o valor de cada incógnita, entre parênteses, dentro das chaves; **sem** "x ∈ ℝ" | `S = {(−1, 2)}` |
+| SPI | Infinitas | forma genérica em função da(s) variável(is) livre(s) e o conjunto a que pertence(m); também com parâmetro | `S = {(1 − y, y) \| y ∈ ℝ}` ou `S = {(1 − t, t) \| t ∈ ℝ}` |
+| SI | Nenhuma | conjunto vazio | `S = ∅` ou `S = { }` — **nunca** `S = {∅}` |
+
+- Além da forma, o passo traz a **leitura** ("…formado pelos pares ordenados (1 − y, y), tal que y pertence
+  aos reais"; a barra "|" ou ";" se lê "tal que"), uma **nota** própria da classe e, no .txt e no bloco
+  Resultado, o **resumo comparativo** das três classes com a do sistema marcada (►).
+- Par ordenado (2×2) ou terno ordenado (3×3). No SPI, a variável livre aparece como `z ∈ ℝ (variável livre)`
+  e a verificação usa a solução particular com as livres iguais a 0.
+- No *trace*: `passo.formal` e `resultado.formal` = `{quantidade, formas, leitura, nota, resumo}`;
+  `resultado.conjunto` segue com a forma paramétrica (contrato do Remotion/Manim).
+
 ### RN-012 — Determinismo
 
 A mesma entrada (após normalização para frações) gera exatamente o mesmo *trace*. O *trace* inclui `hash` SHA-256 da entrada normalizada.

@@ -320,8 +320,12 @@
     solucao(p) {
       destacarLinhaMetodo(0);
       desenharMatriz(p, null);
+      const formal = p.formal;                         // RN-029: termos formais do conjunto solução
+      if (formal) painel(criar('span', 'quantidade-solucao', formal.quantidade));
       painel(criar('span', 'conjunto', p.conjunto));
+      if (formal) formal.formas.slice(1).forEach((f) => painel(criar('span', 'conjunto conjunto-alt', 'ou ' + f)));
       p.itens.forEach((it) => item(it.texto));
+      if (formal) item(formal.nota, 'nota');
     },
 
     async verificacao(p, animar) {

@@ -227,3 +227,22 @@ class PaginasTests(TestCase):
         r = self.client.get('/nao-existe/')
         self.assertEqual(r.status_code, 404)
         self.assertContains(r, 'Nenhuma equação aponta para ela', status_code=404)
+
+
+class ApresentacaoFormalViewTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def test_txt_traz_a_forma_formal_e_o_resumo(self):
+        dados = {'entrada': 'equacoes', 'metodo': 'escalonamento',
+                 'equacoes': 'x + 2y - z = 4\n2x - y + 3z = 9\n3x + y + 2z = 13'}
+        txt = self.client.get(reverse('sistemas:solucao_txt'), dados).content.decode()
+        self.assertIn('Classificação: SPI (infinitas soluções)    S = {(22/5 − z, −1/5 + z, z) | z ∈ ℝ}', txt)
+        self.assertIn('ou S = {(22/5 − t, −1/5 + t, t) | t ∈ ℝ}', txt)
+        self.assertIn('tal que z pertence aos reais', txt)
+        self.assertIn('► SPI — Infinitas: S = {(f(z), g(z), z) | z ∈ ℝ}', txt)
+        self.assertIn('· SI — Nenhuma: S = { } ou S = ∅', txt)
+
+    def test_pagina_mostra_a_leitura_no_bloco_resultado(self):
+        r = self.client.get(reverse('sistemas:resolver'))
+        self.assertContains(r, 'O conjunto solução tem um único par ordenado (x, y): x = −1 e y = 2.')
