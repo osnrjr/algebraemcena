@@ -310,7 +310,7 @@
 
 /* ---------- Celular e tablet em pé: tela dividida (RN-028) ----------
    Depois de resolver, a matriz (2º quadrante) fica fixa em cima, só com a altura que precisa,
-   e a conta (3º) rola embaixo no resto da tela; a página não rola. O lápis no cabeçalho da cena
+   e a conta (3º) rola embaixo no resto da tela; a página não rola. O botão "Editar" no cabeçalho da cena
    abre o formulário (vista "sistema"); o botão ◫ no formulário volta ao passo a passo.
    Ativado por JS (body.modo-dividido); sem JS, os quadrantes continuam empilhados. */
 .so-dividido { display: none !important; }
@@ -332,17 +332,20 @@ body.modo-dividido.vista-sistema #q-cena,
 body.modo-dividido.vista-sistema #q-conta { display: none; }
 body.modo-dividido.vista-sistema .resolver-main { padding-top: .5rem !important; }
 
-/* Em cima: cabeçalho em grade — [lápis | seções], progresso, controles, [título | contador], matriz */
+/* Em cima: cabeçalho em grade — [Editar | seções], progresso, controles, [título | contador], matriz */
 body.modo-dividido:not(.vista-sistema) #q-cena > .card { height: 100%; overflow: hidden; padding: .45rem .55rem .35rem !important; }
 body.modo-dividido #cena {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: .4rem;
   grid-template-areas: "editar secoes secoes" "prog prog prog" "ctrl ctrl ctrl" "titulo titulo contador" "palco palco palco";
   grid-template-rows: auto auto auto auto minmax(0, 1fr); }
 body.modo-dividido #cena > .cena-cabecalho { display: contents !important; }
-body.modo-dividido .btn-editar-sistema { grid-area: editar; padding: .15rem .45rem; align-self: center; }
+body.modo-dividido .btn-editar-sistema { grid-area: editar; align-self: center; }
+/* Linha "Editar | Sistema | Cramer | Escalonamento | Resultado": mesmo tamanho para os 5 */
+body.modo-dividido .btn-editar-sistema,
+body.modo-dividido #cena-secoes button { padding: .12rem .32rem; font-size: .72rem; font-weight: 400; line-height: 1.4; white-space: nowrap; }
+body.modo-dividido #cena-secoes button { flex: 1 1 auto; justify-content: center; }   /* ocupam a linha toda */
 body.modo-dividido #cena-secoes { grid-area: secoes; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: .25rem; }
 body.modo-dividido #cena-secoes::-webkit-scrollbar { display: none; }
-body.modo-dividido #cena-secoes button { white-space: nowrap; padding: .12rem .5rem; font-size: .74rem; font-weight: 400; }
 body.modo-dividido #cena-progresso { grid-area: prog; margin: .35rem 0 !important; height: 3px; }
 body.modo-dividido .cena-controles { grid-area: ctrl; flex-wrap: nowrap; justify-content: space-between; gap: .3rem; }
 body.modo-dividido .cena-controles .btn { padding: .22rem .55rem; font-weight: 400; }

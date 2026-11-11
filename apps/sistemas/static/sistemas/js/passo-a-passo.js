@@ -532,7 +532,7 @@
   const telaDividida = window.matchMedia('(max-width: 1199.98px) and (min-height: 540px)');
   const telaEmpilhada = window.matchMedia('(max-width: 1199.98px)');
   const corpo = document.body;
-  // Lápis no cabeçalho da cena: editar o sistema; botão no formulário: voltar ao passo a passo.
+  // "Editar" no cabeçalho da cena: abre o formulário; botão no formulário: voltar ao passo a passo.
   const atalhos = document.querySelectorAll('[data-vista]');
 
   const celularEstreito = window.matchMedia('(max-width: 991.98px)');
